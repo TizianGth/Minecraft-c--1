@@ -8,12 +8,12 @@
 
 Textures GrassBlock[6] = { Dirt,Dirt,Grass, Dirt, Dirt,Dirt };
 Textures blockOverlay[6] = { GrassMask,GrassMask,Grass, Null, GrassMask,GrassMask };
-vector3 positions[ChunkSize] = { vector3(0,0,0),  vector3(2,0,0),  vector3(-2,0,0),
-								 vector3(0,0,2),  vector3(2,0,2),  vector3(-2,0,2),
-								 vector3(0,0,-2), vector3(2,0,-2), vector3(-2,0,-2) };
+Blocktype grass1(vector3Int(0,0,0), 0);
+Blocktype grass2(vector3Int(2, 0, 0), 0);
+std::vector<Blocktype> blocks = { grass1, grass2};
 
 test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Texture("res/textures/dirt.png"), m_CubeMap(GrassBlock, 0), m_Overlay(blockOverlay, 0),
-m_Chunck(positions)
+m_Chunck(blocks)
 {
 
 
@@ -77,7 +77,7 @@ m_Chunck(positions)
 	proj = glm::perspective(
 		glm::radians(90.0f),
 		float(640 * 2) / float(480 * 2),
-		0.1f, 100.0f);
+		0.5f, 100.0f);
 	view = glm::mat4(1.0f);
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -1.0f));
 	m_Shader.Bind();
@@ -115,7 +115,7 @@ void test::TestBatching::OnRender(glm::vec3 translation, glm::vec3 roation, floa
 		m_CubeMap.Bind(0);
 		m_Shader.SetUniform1i("u_Texture", 0);
 		m_Shader.SetUniform4f("u_Color", vector4(color[0], color[1], color[2], color[3]));
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), translation - glm::vec3(1.0f, 1.0f, 1.0f));
 		// model = glm::scale(model, glm::vec3(1f, 0.1f, 0.1f));
 		model = glm::rotate(model, glm::radians(roation.x), glm::vec3(0.0f, 1.0f, 0.0f));;
 		model = glm::rotate(model, glm::radians(roation.y), glm::vec3(1.0f, 0.0f, 0.0f));;
@@ -124,15 +124,7 @@ void test::TestBatching::OnRender(glm::vec3 translation, glm::vec3 roation, floa
 
 		m_Shader.SetUniformMat4f("u_MVP", mvp);
 
-		m_Renderer.Draw(m_Chunck.m_Models[0].m_Va, m_Chunck.m_Models[0].m_Ib, m_Shader);
-		m_Renderer.Draw(m_Chunck.m_Models[1].m_Va, m_Chunck.m_Models[1].m_Ib, m_Shader);
-		m_Renderer.Draw(m_Chunck.m_Models[2].m_Va, m_Chunck.m_Models[2].m_Ib, m_Shader);
-		m_Renderer.Draw(m_Chunck.m_Models[3].m_Va, m_Chunck.m_Models[3].m_Ib, m_Shader);
-		m_Renderer.Draw(m_Chunck.m_Models[4].m_Va, m_Chunck.m_Models[4].m_Ib, m_Shader);
-		m_Renderer.Draw(m_Chunck.m_Models[5].m_Va, m_Chunck.m_Models[5].m_Ib, m_Shader);
-		m_Renderer.Draw(m_Chunck.m_Models[6].m_Va, m_Chunck.m_Models[6].m_Ib, m_Shader);
-		m_Renderer.Draw(m_Chunck.m_Models[7].m_Va, m_Chunck.m_Models[7].m_Ib, m_Shader);
-		m_Renderer.Draw(m_Chunck.m_Models[8].m_Va, m_Chunck.m_Models[8].m_Ib, m_Shader);
+		m_Renderer.Draw(m_Chunck.m_Model.m_Va, m_Chunck.m_Model.m_Ib, m_Shader);
 	}
 
 

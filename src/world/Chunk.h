@@ -2,15 +2,22 @@
 
 #include "vector.h"
 #include "Model.h"
+#include "Blockytpe.h"
 
-const int ChunkSize = 9; // x = 3; y = 3; z = 1;
+const int ChunkSizeX = 1;
+const int ChunkSizeY = 1;
+const int ChunkSizeZ = 1;
 
 class Chunk {
 public:
-	Chunk(vector3 positions[ChunkSize]);
+	Chunk(std::vector<Blocktype> &blocks);
 	~Chunk();
 
 	void Set();
-	Model m_Models[ChunkSize];
+	Mesh m_Mesh;
+	Model m_Model;
 private:
+	Blocktype m_Blocks[ChunkSizeX][ChunkSizeY][ChunkSizeZ];
+	std::vector<float> ConvertPositionToVertices(vector3Int position);
+	std::vector<int> ConvertPositionToIndex(int blockCount);
 };

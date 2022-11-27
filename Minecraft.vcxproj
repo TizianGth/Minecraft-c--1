@@ -605,6 +605,7 @@
     <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\VertexBuffer.h" />
     <ClInclude Include="src\VertexBufferLayout.h" />
+    <ClInclude Include="src\world\Blockytpe.h" />
     <ClInclude Include="src\world\Chunk.h" />
   </ItemGroup>
   <ItemGroup>

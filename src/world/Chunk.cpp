@@ -1,54 +1,94 @@
 #include "Chunk.h"
 
-Chunk::Chunk(vector3 positions[ChunkSize])
+
+//TODO: CHUNK AND WORLD POSITION CONVERSION
+Chunk::Chunk(std::vector<Blocktype>& blocks)
 {
-	for (int i = 0; i < ChunkSize; i++) {
-        Mesh mesh;
-		float x = positions[i].x();
-		float y = positions[i].y();
-		float z = positions[i].z();
+    int length = blocks.size();
+    for (int i = 0; i < length; i++) {
 
-       mesh.vertices = {
-	   -1 + x, -1 + y, 1 + z, -1, -1, 1, 0,
-		1 + x, -1 + y, 1 + z,  1, -1, 1, 0,
-		1 + x,  1 + y, 1 + z,  1,  1, 1, 0,
-	   -1 + x,  1 + y, 1 + z, -1,  1, 1, 0,
+        vector3Int position = blocks[i].m_Position;
 
-	   -1 + x, -1 + y, -1 + z, -1, -1, -1, 0,
-		1 + x, -1 + y, -1 + z,  1, -1, -1, 0,
-		1 + x,  1 + y, -1 + z,  1,  1, -1, 0,
-	   -1 + x,  1 + y, -1 + z, -1,  1, -1, 0
-		};
+        m_Blocks[position.x()][position.y()][position.z()].Set(position, 0);
 
-       mesh.indices = {
-            // Front
-             0,1,2,
-             2,3,0,
+        std::vector<float> newVertices = ConvertPositionToVertices(position);
+        int newVerticesLength = newVertices.size();
 
-             // Back
-             4,5,6,
-             6,7,4,
+        m_Mesh.vertices.reserve(newVerticesLength);
 
-             // Right
-             1, 5, 6,
-             6, 2, 1,
+        for (int v = 0; v < newVerticesLength; v++) {
+            m_Mesh.vertices.emplace_back(newVertices[v]);
+        }
 
-             // Left
-             0, 4, 7,
-             7, 3, 0,
+        std::vector<int> newIndices = ConvertPositionToIndex(i);
+        int newIndicesLength = newIndices.size();
 
-             // Top
-             2, 3, 7,
-             7, 2, 6,
+        m_Mesh.indices.reserve(newIndicesLength);
 
-             // Bottom
-             1, 5, 4,
-             4, 1, 0
-        };
+        for (int v = 0; v < newIndicesLength; v++) {
+            m_Mesh.indices.emplace_back(newIndices[v]);
+        }
 
-       m_Models[i].Set(mesh);
-	}
+    }
+
+
+    m_Model.Set(m_Mesh);
+    m_Model.addVB();
+    m_Model.addIB();
+    m_Model.addVA();
 }
+
+std::vector<float> Chunk::ConvertPositionToVertices(vector3Int position) {
+    float x = position.x();
+    float y = position.y();
+    float z = position.z();
+    std::vector<float> result = {
+       x,     y,     z + 1, -1, -1, 1, 0,
+       x + 1, y,     z + 1,  1, -1, 1, 0,
+       x + 1, y + 1, z + 1,  1,  1, 1, 0,
+       x,     y + 1, z + 1, -1,  1, 1, 0,
+
+       x,     y,     z, -1, -1, -1, 0,
+       x + 1, y,     z,  1, -1, -1, 0,
+       x + 1, y + 1, z,  1,  1, -1, 0,
+       x,     y + 1, z, -1,  1, -1, 0
+    };
+
+    return result;
+}
+
+std::vector<int> Chunk::ConvertPositionToIndex(int blockCount)
+{
+    std::vector<int> result = {
+        // Front
+         0 + (8 * blockCount),1 + (8 * blockCount),2 + (8 * blockCount),
+         2 + (8 * blockCount),3 + (8 * blockCount),0 + (8 * blockCount),
+
+         // Back
+         4 + (8 * blockCount),5 + (8 * blockCount),6 + (8 * blockCount),
+         6 + (8 * blockCount),7 + (8 * blockCount),4 + (8 * blockCount),
+
+         // Right
+         1 + (8 * blockCount), 5 + (8 * blockCount), 6 + (8 * blockCount),
+         6 + (8 * blockCount), 2 + (8 * blockCount), 1 + (8 * blockCount),
+
+         // Left
+         0 + (8 * blockCount), 4 + (8 * blockCount), 7 + (8 * blockCount),
+         7 + (8 * blockCount), 3 + (8 * blockCount), 0 + (8 * blockCount),
+
+         // Top
+         2 + (8 * blockCount), 3 + (8 * blockCount), 7 + (8 * blockCount),
+         7 + (8 * blockCount), 2 + (8 * blockCount), 6 + (8 * blockCount),
+
+         // Bottom
+         1 + (8 * blockCount), 5 + (8 * blockCount), 4 + (8 * blockCount),
+         4 + (8 * blockCount), 1 + (8 * blockCount), 0 + (8 * blockCount)
+    };
+
+
+    return result;
+}
+
 
 Chunk::~Chunk()
 {
@@ -56,11 +96,7 @@ Chunk::~Chunk()
 
 void Chunk::Set()
 {
-    for (int i = 0; i < ChunkSize; i++) {
-        m_Models[i].addVB();
-        m_Models[i].addIB();
-        m_Models[i].addVA();
-    }
+
 }
 
 

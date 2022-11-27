@@ -43,6 +43,49 @@ public:
 public:
     float e[3];
 };
+class vector3Int {
+public:
+    vector3Int() : e{ 0,0,0 } {}
+    vector3Int(int e0, int e1, int e2) : e{ e0, e1, e2 } {}
+
+    int x() const { return e[0]; }
+    int y() const { return e[1]; }
+    int z() const { return e[2]; }
+
+    vector3Int operator-() const { return vector3Int(-e[0], -e[1], -e[2]); }
+    int operator[](int i) const { return e[i]; }
+    //float& operator[](int i) { return e[i]; }
+
+    vector3Int& operator+=(const vector3Int& v) {
+        e[0] += v.e[0];
+        e[1] += v.e[1];
+        e[2] += v.e[2];
+        return *this;
+    }
+
+    vector3Int& operator*=(const int t) {
+        e[0] *= t;
+        e[1] *= t;
+        e[2] *= t;
+        return *this;
+    }
+
+    vector3Int& operator/=(const int t) {
+        return *this *= 1 / t;
+    }
+
+    int length() const {
+        return e[0] + e[1] + e[2];
+    }
+
+    int length_squared() const {
+        return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
+    }
+
+
+public:
+    int e[3];
+};
 
 class vector4 {
 public:
