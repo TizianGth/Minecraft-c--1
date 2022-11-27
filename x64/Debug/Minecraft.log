@@ -1,0 +1,6 @@
+﻿  Skipping vcpkg. (no packages)
+  Minecraft.cpp
+C:\Users\Tizian\source\repos\Minecraft\Minecraft\src\Minecraft.cpp(140,12): warning C4551: function call missing argument list
+  TestBatching.cpp
+  Generating Code...
+  Minecraft.vcxproj -> C:\Users\Tizian\source\repos\Minecraft\x64\Debug\Minecraft.exe

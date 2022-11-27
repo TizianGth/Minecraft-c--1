@@ -1,0 +1,27 @@
+﻿  Skipping vcpkg. (no packages)
+  gl.c
+  IndexBuffer.cpp
+  linmath.h
+C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\linmath.h(605,51): warning C4244: "Initialisierung": Konvertierung von "double" in "float", möglicher Datenverlust
+C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\linmath.h(605,20): warning C4244: "Initialisierung": Konvertierung von "double" in "const float", möglicher Datenverlust
+  Minecraft.cpp
+C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\Minecraft.cpp(140,12): warning C4551: Dem Funktionsaufruf fehlt die Argumentliste
+  Model.cpp
+  Renderer.cpp
+  shader.cpp
+  TestBatching.cpp
+  TestClearColor.cpp
+  Texture.cpp
+  glm.cpp
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_glfw_gl3.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  stb.cpp
+  VertexArray.cpp
+  VertexBuffer.cpp
+  Chunk.cpp
+  Code wird generiert...
+  Minecraft.vcxproj -> C:\Users\Tizian\source\repos\Minecraft\Debug\Minecraft.exe
