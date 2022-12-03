@@ -43,34 +43,34 @@ public:
 public:
     float e[3];
 };
-class vector3Int {
+class vector3Short {
 public:
-    vector3Int() : e{ 0,0,0 } {}
-    vector3Int(int e0, int e1, int e2) : e{ e0, e1, e2 } {}
+    vector3Short() : e{ 0,0,0 } {}
+    vector3Short(short e0, short e1, short e2) : e{ e0, e1, e2 } {}
 
     int x() const { return e[0]; }
     int y() const { return e[1]; }
     int z() const { return e[2]; }
 
-    vector3Int operator-() const { return vector3Int(-e[0], -e[1], -e[2]); }
-    int operator[](int i) const { return e[i]; }
+    vector3Short operator-() const { return vector3Short(-e[0], -e[1], -e[2]); }
+    short operator[](short i) const { return e[i]; }
     //float& operator[](int i) { return e[i]; }
 
-    vector3Int& operator+=(const vector3Int& v) {
+    vector3Short& operator+=(const vector3Short& v) {
         e[0] += v.e[0];
         e[1] += v.e[1];
         e[2] += v.e[2];
         return *this;
     }
 
-    vector3Int& operator*=(const int t) {
+    vector3Short& operator*=(const short t) {
         e[0] *= t;
         e[1] *= t;
         e[2] *= t;
         return *this;
     }
 
-    vector3Int& operator/=(const int t) {
+    vector3Short& operator/=(const short t) {
         return *this *= 1 / t;
     }
 

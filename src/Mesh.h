@@ -3,7 +3,6 @@
 #include <vector>
 #include "glm/glm.hpp"
 #include "glad/gl.h"
-#include "vector.h"
 
 
 struct Mesh {

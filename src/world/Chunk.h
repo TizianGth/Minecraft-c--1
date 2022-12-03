@@ -1,23 +1,30 @@
 #pragma once
 
-#include "vector.h"
 #include "Model.h"
 #include "Blockytpe.h"
+#include "Faces.h"
 
-const int ChunkSizeX = 1;
-const int ChunkSizeY = 1;
-const int ChunkSizeZ = 1;
+const int CHUNK_SIZE = 16;
+const int CHUNK_HEIGHT = 256;
 
 class Chunk {
 public:
-	Chunk(std::vector<Blocktype> &blocks);
+	Chunk();
 	~Chunk();
 
-	void Set();
+	void Generate();
+	void GenerateMeshes();
+	void FillUpTest(int xr);
+
 	Mesh m_Mesh;
 	Model m_Model;
 private:
-	Blocktype m_Blocks[ChunkSizeX][ChunkSizeY][ChunkSizeZ];
-	std::vector<float> ConvertPositionToVertices(vector3Int position);
-	std::vector<int> ConvertPositionToIndex(int blockCount);
+	//Blocktype m_Blocks[ChunkSizeX][ChunkSizeY][ChunkSizeZ];
+	unsigned char m_blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT];
+	glm::vec3 m_localBlockPositions[CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT];
+	std::vector<float> ConvertPositionToVertices(glm::vec3& position);
+	std::vector<int> ConvertPositionToIndex(int blockCount, Faces faces);
+	Faces GetNeighbouringBlocks(glm::vec3& position);
+	int ConvertVector3ToIndex(glm::vec3& position);
+
 };

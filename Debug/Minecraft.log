@@ -1,6 +1,0 @@
-﻿  Skipping vcpkg. (no packages)
-  Chunk.cpp
-C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\world\Chunk.cpp(42,13): warning C4244: "Initialisierung": Konvertierung von "int" in "float", möglicher Datenverlust
-C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\world\Chunk.cpp(43,13): warning C4244: "Initialisierung": Konvertierung von "int" in "float", möglicher Datenverlust
-C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\world\Chunk.cpp(44,13): warning C4244: "Initialisierung": Konvertierung von "int" in "float", möglicher Datenverlust
-  Minecraft.vcxproj -> C:\Users\Tizian\source\repos\Minecraft\Debug\Minecraft.exe

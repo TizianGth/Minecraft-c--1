@@ -12,29 +12,31 @@ namespace test {
 		~TestBatching();
 
 		void OnUpdate(float deltaTime) override;
-		void OnRender(glm::vec3 translation, glm::vec3 roation, float color[4]);
+		void OnRender(int screenWidth, int screenHeight);
 		void OnImGuiRender() override;
 
 	private:
-		//float vertecies[48];
-		//unsigned int indices[12];
 
-		//VertexArray m_Va;
-		//VertexBuffer m_Vb;
-		//IndexBuffer m_Ib;
-		VertexBufferLayout m_Layout;
-
-		//Renderer m_Renderer;
 		Shader m_Shader;
 		Texture m_Texture;
 		CubeMap m_CubeMap;
 		CubeMap m_Overlay;
 		Renderer m_Renderer;
-		Chunk m_Chunck;
 
 
-		glm::mat4 proj;
-		glm::mat4 view;
+		glm::mat4 m_Proj;
+		glm::mat4 m_View;
+		glm::mat4 m_Model;
+
+
+		// imgui
+		float m_TranslationX = 0;
+		float m_TranslationY = -2;
+		float m_TranslationZ = -6;
+
+		glm::vec3 m_Rotation = glm::vec3(0.0f);
+
+		float m_Color[4] = { 0.65f,0.85f,0.35f,1 };
 
 	};
 }

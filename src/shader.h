@@ -3,7 +3,6 @@
 #include "VertexArray.h"
 #include "IndexBuffer.h"
 #include <string>
-#include "vector.h"
 #include <unordered_map>
 #include "glm/glm.hpp"
 
@@ -30,6 +29,6 @@ public:
 
 	void SetUniform1i(const std::string& game, int value);
 	void SetUniform1f(const std::string& game, float value);
-	void SetUniform4f(const std::string& game, vector4 value);
+	void SetUniform4f(const std::string& game, glm::vec4 value);
 	void SetUniformMat4f(const std::string& name, glm::mat4& matrix);
 };
