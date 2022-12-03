@@ -106,7 +106,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Tizian\source\repos\Minecraft\Minecraft\src\world;C:\Users\Tizian\source\repos\Minecraft\Minecraft\src\opengl;C:\Users\Tizian\source\repos\Minecraft\Minecraft\src;C:\Users\Tizian\source\repos\Minecraft\Minecraft\src\vendor;C:\Users\Tizian\source\repos\Minecraft\Minecraft\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\include;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\tests;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\world;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\vendor;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
