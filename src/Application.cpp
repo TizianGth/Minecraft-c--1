@@ -23,6 +23,7 @@
 
 #include "tests/TestClearColor.h"
 #include "tests/TestBatching.h"
+#include "Application.h"
 
 int ScreenWidth = 640 * 2;
 int ScreenHeight = 480 * 2;
@@ -58,6 +59,7 @@ void OnWindowResize(GLFWwindow* window, int width, int height)
 
     Draw();
 }
+
 
 int main(void)
 {
@@ -106,6 +108,10 @@ int main(void)
 
     glfwTerminate();
     exit(EXIT_SUCCESS);
-
 }
 
+GLFWwindow* Application::GetWindow()
+{
+    return window;
+}
+ 

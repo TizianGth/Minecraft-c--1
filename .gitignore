@@ -31,8 +31,6 @@
 *.out
 *.app
 
-# End of https://mrkandreev.name/snippets/gitignore-generator/#C++
-*.obj
-*.obj
-*.ilk
-*.recipe
+# Folders
+Debug/
+x64/

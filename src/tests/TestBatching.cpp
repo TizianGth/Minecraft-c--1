@@ -4,7 +4,12 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "Model.h"
-
+#include "Input.h"
+#include <iostream>
+#include "GLFW/glfw3.h"
+#include "Application.h"
+#include <glm/gtx/euler_angles.hpp>
+#include <tgmath.h>
 Textures GrassBlock[6] = { Dirt,Dirt,Grass, Dirt, Dirt,Dirt };
 Textures blockOverlay[6] = { GrassMask,GrassMask,Grass, Null, GrassMask,GrassMask };
 
@@ -34,7 +39,7 @@ test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Tex
 		(float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
 		0.5f, 1000.0f);
 	m_View = glm::mat4(1.0f);
-	m_View = glm::translate(m_View, glm::vec3(0.0f, 0.0f, -1.0f));
+	m_View = glm::translate(m_View, glm::vec3(0.0f, 0.0f, -100.0f));
 	m_Model = glm::mat4(1.0f);
 
 	m_Shader.Bind();
@@ -49,9 +54,16 @@ test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Tex
 test::TestBatching::~TestBatching()
 {
 }
-
+GLFWwindow* applWindow = nullptr;
+bool cursorLocked = true;
 void test::TestBatching::OnUpdate(float deltaTime)
 {
+	if (applWindow == nullptr) {
+		applWindow = Application::GetWindow();
+	}
+	MouseMovement();
+	KeyboardMovement();
+	ChangeCursorLockState();
 }
 void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 {
@@ -102,4 +114,44 @@ void test::TestBatching::OnImGuiRender()
 	ImGui::SliderFloat3("Rotation", &m_Rotation.x, -360, 360);
 
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+}
+
+float screenHalfX = SCREEN_WIDTH / 2;
+float screenHalfY = SCREEN_HEIGHT / 2;
+
+float rotationX = 0;
+float rotationY = 0;
+
+float rotationSpeed = 1.0f;
+float movementSpeed = 0.0001f;
+
+glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraForward = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+void test::TestBatching::MouseMovement()
+{
+	if (!cursorLocked) return;
+	auto position = Input::GetMousePosition();
+	//std::cout << position.first - screenHalfX << " " << position.second - screenHalfY << std::endl;
+
+	glm::vec2 delta = { position.first - screenHalfX,  position.second - screenHalfY };
+
+	glfwSetCursorPos(applWindow, screenHalfX, screenHalfY);
+
+	rotationX += delta.x / 1000 * rotationSpeed;
+	rotationY += delta.y / 1000 * rotationSpeed;
+
+	m_View = glm::eulerAngleYXZ(0.0f, rotationY, 0.0f);
+	m_View *= glm::eulerAngleYXZ(rotationX, 0.0f, 0.0f);
+}
+void test::TestBatching::KeyboardMovement()
+{
+
+}
+
+void test::TestBatching::ChangeCursorLockState()
+{
+	if (Input::IsKeyPressed(GLFW_KEY_L)) {
+		cursorLocked = !cursorLocked;
+	}
 }
