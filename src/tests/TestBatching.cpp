@@ -13,8 +13,10 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/dual_quaternion.hpp>
 #include <algorithm>
-Textures GrassBlock[6] = { Dirt,Dirt,Grass, Dirt, Dirt,Dirt };
-Textures blockOverlay[6] = { GrassMask,GrassMask,Grass, Null, GrassMask,GrassMask };
+
+Textures grassOverlay[6] = { GrassMask,GrassMask,Grass, Null, GrassMask,GrassMask };
+Textures null[6] = { Null,Null, Null, Null, Null, Null };
+Textures DirtBlock[6] = { Dirt,Dirt,Dirt, Dirt, Dirt,Dirt };
 
 Chunk* chunk = nullptr;
 
@@ -23,9 +25,10 @@ int SCREEN_HEIGHT = 480 * 2;
 float screenHalfX = SCREEN_WIDTH / 2;
 float screenHalfY = SCREEN_HEIGHT / 2;
 GLFWwindow* applWindow = nullptr;
-test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Texture("res/textures/dirt.png"), m_CubeMap(GrassBlock, 0), m_Overlay(blockOverlay, 0)
+test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Texture("res/textures/dirt.png")
 {
-
+	m_CubeMap.Load(DirtBlock, 0);
+	m_Overlay.Load(grassOverlay, 0);
 	/*struct Vertex {
 		glm::vec3 Position[3];
 		//float Color[4];
@@ -35,7 +38,7 @@ test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Tex
 
 	chunk = new Chunk;
 	chunk->Generate();
-	chunk->FillUpTest(1);
+	chunk->FillUpTest();
 	chunk->GenerateMeshes();
 
 	m_Proj = glm::perspective(
@@ -150,7 +153,7 @@ void test::TestBatching::MouseMovement()
 
 
 	// numbers were getting to big for float/double to hold, so I reset everytime bigger than 360 
-	// this is not optimal but most of the time nobody will se the reset 
+	// this is not optimal but most of the time nobody will see the reset 
 	if (rotationX >= 360 || rotationX <= -360) {
 		rotationX = 0;
 		//std::cout << "Reset" << std::endl;
@@ -167,7 +170,7 @@ void test::TestBatching::MouseMovement()
 
 
 
-	std::cout << "X: " << rotationX << std::endl;
+	//std::cout << "X: " << rotationX << std::endl;
 	//std::cout << "Y: " << rotationY << std::endl;
 	direction.x = cos(glm::radians(rotationX)) * cos(glm::radians(rotationY));
 	direction.y = sin(glm::radians(rotationY));

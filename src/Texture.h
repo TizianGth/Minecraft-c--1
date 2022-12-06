@@ -35,11 +35,13 @@ private:
 public:
 	std::unordered_map<int, std::string> texturePaths;
 
-	CubeMap(Textures textures[6], int offset);
+	CubeMap();
 	~CubeMap();
 
 	void Bind(unsigned int slot = 0) const;
 	void Unbind() const;
+
+	void Load(Textures textures[6], int offset);
 
 	inline int GetWidth() const { return m_Width; }
 	inline int GetHeight() const { return m_Height; }

@@ -13,20 +13,20 @@ Chunk::~Chunk()
 
 }
 
-std::vector<float> Chunk::ConvertPositionToVertices(glm::vec3& position) {
-    float x = position.x;
-    float y = position.y;
-    float z = position.z;
-    std::vector<float> result = {
-       x,     y,     (z + 1), -1, -1, 1, 0,
-       (x + 1), y,    (z + 1),  1, -1, 1, 0,
-       (x + 1), (y + 1), (z + 1),  1,  1, 1, 0,
-       x,     (y + 1), (z + 1), -1,  1, 1, 0,
+std::vector<int> Chunk::ConvertPositionToVertices(glm::vec3& position, int materialID) {
+    int x = position.x;
+    int y = position.y;
+    int z = position.z;
+    std::vector<int> result = {
+       x,     y,     (z + 1), -1, -1, 1, materialID,
+       (x + 1), y,    (z + 1),  1, -1, 1, materialID,
+       (x + 1), (y + 1), (z + 1),  1,  1, 1, materialID,
+       x,     (y + 1), (z + 1), -1,  1, 1, materialID,
 
-       x,     y,     z, -1, -1, -1, 0,
-       (x + 1), y,     z,  1, -1, -1, 0,
-       (x + 1), (y + 1), z,  1,  1, -1, 0,
-       x,     (y + 1), z, -1,  1, -1, 0
+       x,     y,     z, -1, -1, -1, materialID,
+       (x + 1), y,     z,  1, -1, -1, materialID,
+       (x + 1), (y + 1), z,  1,  1, -1, materialID,
+       x,     (y + 1), z, -1,  1, -1, materialID
     };
 
     return result;
@@ -90,32 +90,29 @@ std::vector<int> Chunk::ConvertPositionToIndex(int blockCount, Faces faces)
     return result;
 }
 
-void Chunk::FillUpTest(int xr)
+void Chunk::FillUpTest()
 {
-
+    // leave 1 block on each side otherwise, faces on the outside wont be rendered because they touch the other chunk
+    // TODO: debug why if face touches other chunk sometimes itll still get rendered
     glm::vec3 position = glm::vec3(0, 0, 0);
-
-    if (xr == 1) {
-        for (int x = 0; x < 4; x++) {
-            for (int z = 0; z < 4; z++) {
-                position = glm::vec3(x, 0, z);
+    for (int x = 1; x < 15; x++) {
+        for (int z = 1; z < 15; z++) {
+            for (int y = 0; y < 3; y++) {
+                position = glm::vec3(x, y, z);
                 m_blocks[ConvertVector3ToIndex(position)] = 1;
             }
         }
     }
-    for (int x = 0; x < 3; x++) {
-        for (int z = 0; z < 3; z++) {
-            position = glm::vec3(x, 1, z);
-            m_blocks[ConvertVector3ToIndex(position)] = 1;
+
+    for (int x = 1; x < 15; x++) {
+        for (int z = 1; z < 15; z++) {
+            for (int y = 3; y < 4; y++) {
+                position = glm::vec3(x, y, z);
+                m_blocks[ConvertVector3ToIndex(position)] = 2;
+            }
         }
     }
 
-    for (int x = 0; x < 2; x++) {
-        for (int z = 0; z < 2; z++) {
-            position = glm::vec3(x, 2, z);
-            m_blocks[ConvertVector3ToIndex(position)] = 1;
-        }
-    }
 }
 
 /// <summary>
@@ -171,11 +168,12 @@ void Chunk::GenerateMeshes()
             continue;
         } 
         glm::vec3 position = m_localBlockPositions[i];
+        int materialID = m_blocks[i];
         Faces faces = GetNeighbouringBlocks(position);
 
         if (faces.Count() == 6) continue;
 
-        std::vector<float> newVertices = ConvertPositionToVertices(position);
+        std::vector<int> newVertices = ConvertPositionToVertices(position, materialID);
         int newVerticesLength = newVertices.size();
 
         m_Mesh.vertices.reserve(newVerticesLength);

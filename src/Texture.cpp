@@ -44,28 +44,10 @@ void Texture::Unbind() const
 
 // CUBEMAP
 
-CubeMap::CubeMap(Textures textures[6], int offset)
+CubeMap::CubeMap()
 	: m_RenderID(0), m_Width(0), m_Height(0), m_BPP(0), texturePaths({ {GrassSide, "res/textures/side.png"}, {Grass, "res/textures/Grass_Top.png"}, {Dirt, "res/textures/dirt.png"}, {GrassMask, "res/textures/Grass_Mask.png"}, { Null, ""} })
 {
-	glGenTextures(1, &m_RenderID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_RenderID);
 
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, 2.0f);
-
-	for (int i = 0; i < 6; i++) {
-		stbi_set_flip_vertically_on_load(0);
-		m_localBuffer[i] = stbi_load(texturePaths[textures[i]].c_str(), &m_Width, &m_Height, &m_BPP, 4);
-
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, GL_RGBA, m_Width, m_Height, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, m_localBuffer[i]);
-
-		stbi_image_free(m_localBuffer[i]);
-	}
 }
 
 CubeMap::~CubeMap()
@@ -83,6 +65,29 @@ void CubeMap::Bind(unsigned int slot) const
 void CubeMap::Unbind() const
 {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+
+void CubeMap::Load(Textures textures[6], int offset)
+{
+	glGenTextures(1, &m_RenderID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_RenderID);
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, 2.0f);
+
+	for (int i = 0; i < 6; i++) {
+		stbi_set_flip_vertically_on_load(0);
+		m_localBuffer[i] = stbi_load(texturePaths[textures[i]].c_str(), &m_Width, &m_Height, &m_BPP, 4);
+
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, m_Width, m_Height, 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, m_localBuffer[i]);
+
+		stbi_image_free(m_localBuffer[i]);
+	}
 }
 
 
