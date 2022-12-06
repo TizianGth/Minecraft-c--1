@@ -10,6 +10,9 @@
 #include "Application.h"
 #include <glm/gtx/euler_angles.hpp>
 #include <tgmath.h>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/dual_quaternion.hpp>
+//#include <algorithm>
 Textures GrassBlock[6] = { Dirt,Dirt,Grass, Dirt, Dirt,Dirt };
 Textures blockOverlay[6] = { GrassMask,GrassMask,Grass, Null, GrassMask,GrassMask };
 
@@ -39,7 +42,7 @@ test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Tex
 		(float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
 		0.5f, 1000.0f);
 	m_View = glm::mat4(1.0f);
-	m_View = glm::translate(m_View, glm::vec3(0.0f, 0.0f, -100.0f));
+	m_View = glm::translate(m_View, glm::vec3(0.0f, 0.0f, 00.0f));
 	m_Model = glm::mat4(1.0f);
 
 	m_Shader.Bind();
@@ -119,39 +122,77 @@ void test::TestBatching::OnImGuiRender()
 float screenHalfX = SCREEN_WIDTH / 2;
 float screenHalfY = SCREEN_HEIGHT / 2;
 
-float rotationX = 0;
-float rotationY = 0;
+double rotationX = 0;
+double rotationY = 0;
 
-float rotationSpeed = 1.0f;
-float movementSpeed = 0.0001f;
+double rotationSpeed = 0.3f;
+float movementSpeed = 0.005f;
 
-glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraForward = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+
+glm::vec3 direction;
+glm::vec3 cameraFront;
 void test::TestBatching::MouseMovement()
 {
 	if (!cursorLocked) return;
 	auto position = Input::GetMousePosition();
+	glfwSetCursorPos(applWindow, screenHalfX, screenHalfY);
 	//std::cout << position.first - screenHalfX << " " << position.second - screenHalfY << std::endl;
 
 	glm::vec2 delta = { position.first - screenHalfX,  position.second - screenHalfY };
 
-	glfwSetCursorPos(applWindow, screenHalfX, screenHalfY);
+	if (rotationX >= 360 || rotationX <= -360 || rotationX + delta.x * rotationSpeed >= 360 || rotationX + delta.x * rotationSpeed <= -360) {
+		rotationX = 0;
+		std::cout << "Reset" << std::endl;
+	}
+		rotationX += delta.x * rotationSpeed;
+	
+	if (rotationY >= 360 || rotationY <= -360 || rotationY - delta.x * rotationSpeed >= 360 || rotationY - delta.x * rotationSpeed <= -360) {
+		rotationY = 0;
+		std::cout << "Reset" << std::endl;
+	}
+		rotationY -= delta.y * rotationSpeed;
+	
 
-	rotationX += delta.x / 1000 * rotationSpeed;
-	rotationY += delta.y / 1000 * rotationSpeed;
 
-	m_View = glm::eulerAngleYXZ(0.0f, rotationY, 0.0f);
-	m_View *= glm::eulerAngleYXZ(rotationX, 0.0f, 0.0f);
+
+	//std::cout << "X: " << rotationX << std::endl;
+	//std::cout << "Y: " << rotationY << std::endl;
+	direction.x = cos(glm::radians(rotationX)) * cos(glm::radians(rotationY));
+	direction.y = sin(glm::radians(rotationY));
+	direction.z = sin(glm::radians(rotationX)) * cos(glm::radians(rotationY));
+	
+	cameraFront = glm::normalize(direction);
+	m_View = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 }
 void test::TestBatching::KeyboardMovement()
 {
-
+	if (Input::IsKeyPressed(GLFW_KEY_W)) {
+		cameraPos += cameraFront * movementSpeed;
+	}
+	if (Input::IsKeyPressed(GLFW_KEY_S)) {
+		cameraPos -= cameraFront * movementSpeed;
+	}
+	if (Input::IsKeyPressed(GLFW_KEY_A)) {
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * movementSpeed;
+	}
+	if (Input::IsKeyPressed(GLFW_KEY_D)) {
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * movementSpeed;
+	}
 }
 
 void test::TestBatching::ChangeCursorLockState()
 {
 	if (Input::IsKeyPressed(GLFW_KEY_L)) {
 		cursorLocked = !cursorLocked;
+	}
+
+	if (Input::IsKeyPressed(GLFW_KEY_ESCAPE)) {
+		glfwDestroyWindow(Application::GetWindow());
 	}
 }

@@ -114,4 +114,3 @@ GLFWwindow* Application::GetWindow()
 {
     return window;
 }
- 
