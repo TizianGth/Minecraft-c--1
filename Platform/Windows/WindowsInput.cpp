@@ -29,11 +29,11 @@ float WindowsInput::GetMouseYImpl()
 	return GetMousePositionImpl().second;
 }
 
-std::pair<float, float> WindowsInput::GetMousePositionImpl()
+std::pair<double, double> WindowsInput::GetMousePositionImpl()
 {
 	auto window = Application::GetWindow();
 	double xPos, yPos;
 	glfwGetCursorPos(window, &xPos, &yPos);
-	return { (float)xPos, (float)yPos};
+	return { xPos, yPos};
 }
 

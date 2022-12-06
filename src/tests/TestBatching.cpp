@@ -9,10 +9,10 @@
 #include "GLFW/glfw3.h"
 #include "Application.h"
 #include <glm/gtx/euler_angles.hpp>
-#include <tgmath.h>
+
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/dual_quaternion.hpp>
-//#include <algorithm>
+#include <algorithm>
 Textures GrassBlock[6] = { Dirt,Dirt,Grass, Dirt, Dirt,Dirt };
 Textures blockOverlay[6] = { GrassMask,GrassMask,Grass, Null, GrassMask,GrassMask };
 
@@ -20,10 +20,11 @@ Chunk* chunk = nullptr;
 
 int SCREEN_WIDTH = 640 * 2;
 int SCREEN_HEIGHT = 480 * 2;
-
+float screenHalfX = SCREEN_WIDTH / 2;
+float screenHalfY = SCREEN_HEIGHT / 2;
+GLFWwindow* applWindow = nullptr;
 test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Texture("res/textures/dirt.png"), m_CubeMap(GrassBlock, 0), m_Overlay(blockOverlay, 0)
 {
-
 
 	/*struct Vertex {
 		glm::vec3 Position[3];
@@ -52,12 +53,15 @@ test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Tex
 	m_Overlay.Bind(1);
 	m_Shader.SetUniform1i("u_Overlay", 1);
 	m_Shader.Bind();
+
+	applWindow = Application::GetWindow();
+	glfwSetCursorPos(applWindow, screenHalfX, screenHalfY);
 }
 
 test::TestBatching::~TestBatching()
 {
 }
-GLFWwindow* applWindow = nullptr;
+
 bool cursorLocked = true;
 void test::TestBatching::OnUpdate(float deltaTime)
 {
@@ -119,10 +123,8 @@ void test::TestBatching::OnImGuiRender()
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }
 
-float screenHalfX = SCREEN_WIDTH / 2;
-float screenHalfY = SCREEN_HEIGHT / 2;
 
-double rotationX = 0;
+double rotationX = -90;
 double rotationY = 0;
 
 double rotationSpeed = 0.3f;
@@ -146,22 +148,26 @@ void test::TestBatching::MouseMovement()
 
 	glm::vec2 delta = { position.first - screenHalfX,  position.second - screenHalfY };
 
-	if (rotationX >= 360 || rotationX <= -360 || rotationX + delta.x * rotationSpeed >= 360 || rotationX + delta.x * rotationSpeed <= -360) {
+
+	// numbers were getting to big for float/double to hold, so I reset everytime bigger than 360 
+	// this is not optimal but most of the time nobody will se the reset 
+	if (rotationX >= 360 || rotationX <= -360) {
 		rotationX = 0;
-		std::cout << "Reset" << std::endl;
+		//std::cout << "Reset" << std::endl;
 	}
-		rotationX += delta.x * rotationSpeed;
+	rotationX += delta.x * rotationSpeed;
 	
-	if (rotationY >= 360 || rotationY <= -360 || rotationY - delta.x * rotationSpeed >= 360 || rotationY - delta.x * rotationSpeed <= -360) {
+	if (rotationY >= 360 || rotationY <= -360) {
 		rotationY = 0;
-		std::cout << "Reset" << std::endl;
+		//std::cout << "Reset" << std::endl;
 	}
-		rotationY -= delta.y * rotationSpeed;
+	rotationY -= delta.y * rotationSpeed;
+	rotationY = std::clamp(rotationY, -89.9, 89.9);
 	
 
 
 
-	//std::cout << "X: " << rotationX << std::endl;
+	std::cout << "X: " << rotationX << std::endl;
 	//std::cout << "Y: " << rotationY << std::endl;
 	direction.x = cos(glm::radians(rotationX)) * cos(glm::radians(rotationY));
 	direction.y = sin(glm::radians(rotationY));
