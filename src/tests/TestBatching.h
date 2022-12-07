@@ -40,7 +40,7 @@ namespace test {
 		float m_Color[4] = { 0.65f,0.85f,0.35f,1 };
 
 		void MouseMovement();
-		void KeyboardMovement();
+		void KeyboardMovement(float deltaTime);
 		void ChangeCursorLockState();
 	};
 }

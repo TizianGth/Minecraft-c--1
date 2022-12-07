@@ -95,8 +95,8 @@ void Chunk::FillUpTest()
     // leave 1 block on each side otherwise, faces on the outside wont be rendered because they touch the other chunk
     // TODO: debug why if face touches other chunk sometimes itll still get rendered
     glm::vec3 position = glm::vec3(0, 0, 0);
-    for (int x = 1; x < 15; x++) {
-        for (int z = 1; z < 15; z++) {
+    for (int x = 0; x < 16; x++) {
+        for (int z = 0; z < 16; z++) {
             for (int y = 0; y < 3; y++) {
                 position = glm::vec3(x, y, z);
                 m_blocks[ConvertVector3ToIndex(position)] = 1;
@@ -104,8 +104,8 @@ void Chunk::FillUpTest()
         }
     }
 
-    for (int x = 1; x < 15; x++) {
-        for (int z = 1; z < 15; z++) {
+    for (int x = 0; x < 15; x++) {
+        for (int z = 0; z < 15; z++) {
             for (int y = 3; y < 4; y++) {
                 position = glm::vec3(x, y, z);
                 m_blocks[ConvertVector3ToIndex(position)] = 2;
@@ -199,55 +199,63 @@ void Chunk::GenerateMeshes()
 
 }
 
+
+/// <summary>
+/// creates "seams" on chunks, to remove them youd need a global block buffer or check sorounding chunks. 
+/// Can be important when y is getting greater. Not worth it atm
+/// </summary>
+
 Faces Chunk::GetNeighbouringBlocks(glm::vec3& position)
 {
     Faces localFaces;
 
     glm::vec3 offsetPosition = position + glm::vec3(1, 0, 0);
     int index = ConvertVector3ToIndex(offsetPosition);
-    if (index != -1 && m_blocks[index] == 0) {
+    if (position.x >= CHUNK_SIZE || position.y >= CHUNK_HEIGHT || position.z >= CHUNK_SIZE ||index != -1 && m_blocks[index] == 0) {
         localFaces.faces[localFaces.right] = true;
     }
 
     offsetPosition = position + glm::vec3(-1, 0, 0);
     index = ConvertVector3ToIndex(offsetPosition);
-    if (index != -1 && m_blocks[index] == 0) {
+    if (index == -1 || m_blocks[index] == 0) {
         localFaces.faces[localFaces.left] = true;
     }
 
     offsetPosition = position + glm::vec3(0, 1, 0);
     index = ConvertVector3ToIndex(offsetPosition);
-    if (index != -1 && m_blocks[index] == 0) {
+    if (index == -1 || m_blocks[index] == 0) {
         localFaces.faces[localFaces.top] = true;
     }
 
     offsetPosition = position + glm::vec3(0, -1, 0);
     index = ConvertVector3ToIndex(offsetPosition);
-    if (index != -1 && m_blocks[index] == 0) {
+    if (index == -1 || m_blocks[index] == 0) {
         localFaces.faces[localFaces.bottom] = true;
     }
 
     offsetPosition = position + glm::vec3(0, 0, -1);
     index = ConvertVector3ToIndex(offsetPosition);
-    if (index != -1 && m_blocks[index] == 0) {
+    if (index == -1 || m_blocks[index] == 0) {
         localFaces.faces[localFaces.back] = true;
     }
 
     offsetPosition = position + glm::vec3(0, 0, 1);
     index = ConvertVector3ToIndex(offsetPosition);
-    if (index != -1 && m_blocks[index] == 0) {
+    if (index == -1 || m_blocks[index] == 0) {
         localFaces.faces[localFaces.front] = true;
     }
+
+    offsetPosition = glm::vec3(-1, 0, 0);
 
     return localFaces;
 }
 
 int Chunk::ConvertVector3ToIndex(glm::vec3& position)
 {
-    if (position.x < 0 || position.x > CHUNK_SIZE || position.y < 0 || position.y > CHUNK_HEIGHT || position.z < 0 || position.z > CHUNK_SIZE) return -1;
+    if (position.x < 0 || position.x >= CHUNK_SIZE || position.y < 0 || position.y >= CHUNK_HEIGHT || position.z < 0 || position.z >= CHUNK_SIZE) return -1;
 
-    // formula to convert vector3 to index = x + y*(CHUNK_SIZE*CHUNK_SIZE) + z*(CHUNK_SIZE)
-    return position.x + position.y * (CHUNK_SIZE * CHUNK_SIZE) + position.z * (CHUNK_SIZE);
+    // formula to convert vector3 to index = x + y*(CHUNK_HEIGHT) + z*(CHUNK_SIZE)
+    return position.x + position.y * (CHUNK_HEIGHT) + position.z * (CHUNK_SIZE);
 }
 
 

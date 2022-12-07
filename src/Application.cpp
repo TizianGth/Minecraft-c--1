@@ -25,6 +25,8 @@
 #include "tests/TestBatching.h"
 #include "Application.h"
 
+#include <chrono>
+
 int ScreenWidth = 640 * 2;
 int ScreenHeight = 480 * 2;
 
@@ -32,13 +34,17 @@ GLFWwindow* window;
 
 test::TestBatching* test1 = nullptr;
 
+double elapsed_time_ms;
+
+
 void Draw() {
     if (test1 != nullptr) {
 
-        test1->OnUpdate(0.0f);
+        test1->OnUpdate(elapsed_time_ms);
+        auto t_start = std::chrono::high_resolution_clock::now();
         test1->OnRender(ScreenWidth, ScreenHeight);
-
-
+        auto t_end = std::chrono::high_resolution_clock::now();
+        elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
 
         ImGui_ImplGlfwGL3_NewFrame();
         test1->OnImGuiRender();
