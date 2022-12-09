@@ -34,23 +34,24 @@ GLFWwindow* window;
 
 test::TestBatching* test1 = nullptr;
 
-double elapsed_time_ms;
+float elapsed_time_ms;
 
-
+auto currentTime = std::chrono::high_resolution_clock::now();
+auto previousTime = std::chrono::high_resolution_clock::now();
 void Draw() {
     if (test1 != nullptr) {
+        currentTime = std::chrono::high_resolution_clock::now();
+        elapsed_time_ms = std::chrono::duration<float, std::milli>(currentTime - previousTime).count();
 
         test1->OnUpdate(elapsed_time_ms);
-        auto t_start = std::chrono::high_resolution_clock::now();
         test1->OnRender(ScreenWidth, ScreenHeight);
-        auto t_end = std::chrono::high_resolution_clock::now();
-        elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end - t_start).count();
 
         ImGui_ImplGlfwGL3_NewFrame();
         test1->OnImGuiRender();
 
         ImGui::Render();
         ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+        previousTime = currentTime;
     }
     // Swap front and back buffers
     glfwSwapBuffers(window);
@@ -87,7 +88,7 @@ int main(void)
 
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
-    glDepthFunc(GL_LESS);
+    glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1.0f);
     
     ImGui::CreateContext();

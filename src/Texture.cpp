@@ -43,9 +43,13 @@ void Texture::Unbind() const
 }
 
 // CUBEMAP
+std::string textLoc = "res/textures/";
 
 CubeMap::CubeMap()
-	: m_RenderID(0), m_Width(0), m_Height(0), m_BPP(0), texturePaths({ {GrassSide, "res/textures/side.png"}, {Grass, "res/textures/Grass_Top.png"}, {Dirt, "res/textures/dirt.png"}, {GrassMask, "res/textures/Grass_Mask.png"}, { Null, ""} })
+	: m_RenderID(0), m_Width(0), m_Height(0), m_BPP(0), texturePaths({ {GrassSide,  textLoc + "side.png"}, {Grass,  textLoc + "Grass_Top.png"},
+		{Dirt, textLoc + "dirt.png"}, {GrassMask,  textLoc + "Grass_Mask.png"}, { Null, ""} , 
+		{ SkyboxTop,  textLoc + "/skybox/top.png"} , { SkyboxBottom,  textLoc + "/skybox/bottom.png"} , { SkyboxRight,  textLoc + "/skybox/right.png"},
+		{ SkyboxLeft,  textLoc + "/skybox/left.png"} , { SkyboxFront,  textLoc + "/skybox/front.png"} , { SkyboxBack,  textLoc + "/skybox/back.png"} })
 {
 
 }
@@ -72,7 +76,7 @@ void CubeMap::Load(Textures textures[6], int offset)
 	glGenTextures(1, &m_RenderID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_RenderID);
 
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -80,6 +84,7 @@ void CubeMap::Load(Textures textures[6], int offset)
 	glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, 2.0f);
 
 	for (int i = 0; i < 6; i++) {
+
 		stbi_set_flip_vertically_on_load(0);
 		m_localBuffer[i] = stbi_load(texturePaths[textures[i]].c_str(), &m_Width, &m_Height, &m_BPP, 4);
 

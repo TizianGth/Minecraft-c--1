@@ -116,7 +116,7 @@ void Chunk::FillUpTest()
 }
 
 /// <summary>
-/// Fill whole chunk with air blocks (blockId = 0)
+/// Fill whole chunk with air blocks (blockId = 0) or any other block
 /// </summary>
 void Chunk::Generate()
 {

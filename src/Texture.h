@@ -21,7 +21,8 @@ public:
 };
 
 enum Textures {
-	GrassSide = 0, Grass = 1, Dirt = 2, GrassMask = 3, Null = 4
+	Null = 0, GrassSide = 1, Grass = 2, Dirt = 3, GrassMask = 4,
+	SkyboxTop = 5, SkyboxRight = 6, SkyboxBottom = 7, SkyboxLeft = 8, SkyboxFront = 9, SkyboxBack = 10
 };
 
 

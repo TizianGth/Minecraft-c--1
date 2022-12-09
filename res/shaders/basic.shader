@@ -21,11 +21,8 @@ layout(location = 0) out vec4 color;
 in vec3 v_TexCoord;
 
 uniform samplerCube u_Texture;
-uniform samplerCube u_Overlay;
 
 void main() {
-
-
 	vec4 texColor = texture(u_Texture, v_TexCoord);
 	color = texColor;
 	

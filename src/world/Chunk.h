@@ -19,7 +19,6 @@ public:
 	Mesh m_Mesh;
 	Model m_Model;
 private:
-	//Blocktype m_Blocks[ChunkSizeX][ChunkSizeY][ChunkSizeZ];
 	unsigned char m_blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT];
 	glm::vec3 m_localBlockPositions[CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT];
 	std::vector<int> ConvertPositionToVertices(glm::vec3& position, int materialID);

@@ -70,68 +70,6 @@ void test::TestBatching::OnUpdate(float deltaTime)
 	KeyboardMovement(deltaTime);
 	ChangeCursorLockState();
 }
-void test::TestBatching::OnRender(int screenWidth, int screenHeight)
-{
-	m_Renderer.Clear();
-
-	/*
-	1. Make 1 Big VA, BV, etc for each chunk and only change when needed
-	2. Change VB, Va on the fly with eg Vectors to only bind visible/used information for each chunk (every frame?)
-	
-	*/
-
-	m_Shader.Bind();
-
-	m_Overlay.Bind(1);
-	m_Shader.SetUniform1i("u_Overlay", 1);
-	m_CubeMap.Bind(0);
-	m_Shader.SetUniform1i("u_Texture", 0);
-
-	m_Proj = glm::perspective(
-		glm::radians(70.0f),
-		(float)screenWidth / (float)screenHeight,
-		0.5f, 1000.0f);
-
-	glm::vec3 translation = glm::vec3(m_TranslationX, m_TranslationY, m_TranslationZ);
-
-	m_Shader.SetUniform4f("u_Color", glm::vec4(m_Color[0], m_Color[1], m_Color[2], m_Color[3]));
-
-
-	// rendering 14x14 chunks atm all use the same Mesh/Model, but already seperate draw calls
-	// seperate draw calls prop better becasue otherwise the buffers and everything woudl just be 1 giant blob + 14*14 draw calls isnt the worst
-	for (int chunkInstanceX = 0; chunkInstanceX < 14; chunkInstanceX++) {
-		for (int chunkInstanceZ = 0; chunkInstanceZ < 14; chunkInstanceZ++) {
-			{
-				m_Model = glm::translate(glm::mat4(1.0f), translation + glm::vec3(chunkInstanceX * CHUNK_SIZE, 0.0f, chunkInstanceZ * CHUNK_SIZE));
-				// model = glm::scale(model, glm::vec3(1f, 0.1f, 0.1f));
-				/*m_Model = glm::rotate(m_Model, glm::radians(m_Rotation.x), glm::vec3(0.0f, 1.0f, 0.0f));;
-				m_Model = glm::rotate(m_Model, glm::radians(m_Rotation.y), glm::vec3(1.0f, 0.0f, 0.0f));;
-				m_Model = glm::rotate(m_Model, glm::radians(m_Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));; */
-				glm::mat4 mvp = m_Proj * m_View * m_Model;
-
-				m_Shader.SetUniformMat4f("u_MVP", mvp);
-
-
-				m_Renderer.Draw(chunk->m_Model.m_Va, chunk->m_Model.m_Ib, m_Shader);
-
-			}
-		}
-	}
-}
-
-void test::TestBatching::OnImGuiRender()
-{
-	ImGui::SliderFloat("Translation X", &m_TranslationX, -20, 20);
-	ImGui::SliderFloat("Translation Y", &m_TranslationY, -20, 20);
-	ImGui::SliderFloat("Translation Z", &m_TranslationZ, -100.0f, 0);
-	ImGui::ColorEdit4("Color", m_Color);
-
-	//ImGui::SliderFloat3("Rotation", &m_Rotation.x, -360, 360);
-
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-}
-
-
 double rotationX = -90;
 double rotationY = 0;
 
@@ -147,6 +85,71 @@ glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
 
 glm::vec3 direction;
 glm::vec3 cameraFront;
+void test::TestBatching::OnRender(int screenWidth, int screenHeight)
+{
+	m_Renderer.Clear();
+
+	/*
+	1. Make 1 Big VA, BV, etc for each chunk and only change when needed
+	2. Change VB, Va on the fly with eg Vectors to only bind visible/used information for each chunk (every frame?)
+	
+	*/
+
+	m_Proj = glm::perspective(
+		glm::radians(70.0f),
+		(float)screenWidth / (float)screenHeight,
+		0.5f, 1000.0f);
+
+	glm::vec3 translation = glm::vec3(m_TranslationX, m_TranslationY, m_TranslationZ);
+
+	m_Model = glm::translate(glm::mat4(1.0f), glm::vec3(10,3,10));
+
+	glm::mat4 mvp = glm::translate(m_Proj * m_View * m_Model, cameraPos);
+	m_Skybox.Render(mvp);
+	m_Renderer.Draw(m_Skybox.m_Model.m_Va, m_Skybox.m_Model.m_Ib, m_Skybox.m_Shader);
+
+
+	m_Shader.Bind();
+
+	m_Overlay.Bind(1);
+	m_Shader.SetUniform1i("u_Overlay", 1);
+	m_CubeMap.Bind(0);
+	m_Shader.SetUniform1i("u_Texture", 0);
+	m_Shader.SetUniform4f("u_Color", glm::vec4(m_Color[0], m_Color[1], m_Color[2], m_Color[3]));
+	// rendering 14x14 chunks atm all use the same Mesh/Model, but already seperate draw calls
+	// seperate draw calls prop better becasue otherwise the buffers and everything woudl just be 1 giant blob + 14*14 draw calls isnt the worst
+	for (int chunkInstanceX = 0; chunkInstanceX < 14; chunkInstanceX++) {
+		for (int chunkInstanceZ = 0; chunkInstanceZ < 14; chunkInstanceZ++) {
+			{
+				m_Model = glm::translate(glm::mat4(1.0f), translation + glm::vec3(chunkInstanceX * CHUNK_SIZE, 0.0f, chunkInstanceZ * CHUNK_SIZE));
+				// model = glm::scale(model, glm::vec3(1f, 0.1f, 0.1f));
+				/*m_Model = glm::rotate(m_Model, glm::radians(m_Rotation.x), glm::vec3(0.0f, 1.0f, 0.0f));;
+				m_Model = glm::rotate(m_Model, glm::radians(m_Rotation.y), glm::vec3(1.0f, 0.0f, 0.0f));;
+				m_Model = glm::rotate(m_Model, glm::radians(m_Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));;   */
+				glm::mat4 mvp = m_Proj * m_View * m_Model;
+
+				m_Shader.SetUniformMat4f("u_MVP", mvp);
+
+
+				m_Renderer.Draw(chunk->m_Model.m_Va, chunk->m_Model.m_Ib, m_Shader);
+
+			}
+		}
+	} 
+}
+
+void test::TestBatching::OnImGuiRender()
+{
+	ImGui::SliderFloat("Translation X", &m_TranslationX, -20, 20);
+	ImGui::SliderFloat("Translation Y", &m_TranslationY, -20, 20);
+	ImGui::SliderFloat("Translation Z", &m_TranslationZ, -100.0f, 0);
+	ImGui::ColorEdit4("Color", m_Color);
+
+	//ImGui::SliderFloat3("Rotation", &m_Rotation.x, -360, 360);
+
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+}
+
 void test::TestBatching::MouseMovement()
 {
 	if (!cursorLocked) return;

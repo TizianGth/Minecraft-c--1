@@ -4,6 +4,7 @@
 #include "Texture.h"
 #include "Model.h"
 #include "Chunk.h"
+#include "Skybox.h"
 
 namespace test {
 	class TestBatching : public Test {
@@ -23,6 +24,7 @@ namespace test {
 		CubeMap m_CubeMap;
 		CubeMap m_Overlay;
 		Renderer m_Renderer;
+		Skybox m_Skybox;
 
 
 		glm::mat4 m_Proj;
