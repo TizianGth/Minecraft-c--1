@@ -116,11 +116,10 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 
 
 	m_Shader.Bind();
-
-	m_Overlay.Bind(1);
-	m_Shader.SetUniform1i("u_Overlay", 1);
-	m_CubeMap.Bind(0);
-	m_Shader.SetUniform1i("u_Texture", 0);
+	//m_Overlay.Bind(1);
+	//m_Shader.SetUniform1i("u_Overlay", 1);
+	//m_CubeMap.Bind(0);
+	//m_Shader.SetUniform1i("u_Texture", 0);
 	m_Shader.SetUniform4f("u_Color", glm::vec4(m_Color[0], m_Color[1], m_Color[2], m_Color[3]));
 	// rendering 14x14 chunks atm all use the same Mesh/Model, but already seperate draw calls
 	// seperate draw calls prop better becasue otherwise the buffers and everything woudl just be 1 giant blob + 14*14 draw calls isnt the worst
@@ -128,11 +127,10 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 		for (int chunkInstanceZ = 0; chunkInstanceZ < 14; chunkInstanceZ++) {
 			{
 				m_Model = glm::translate(glm::mat4(1.0f), translation + glm::vec3(chunkInstanceX * CHUNK_SIZE, 0.0f, chunkInstanceZ * CHUNK_SIZE));
-				glm::mat4 mvp = m_Proj * m_View * m_Model;
+				mvp = m_Proj * m_View * m_Model;
 
 				m_Shader.SetUniformMat4f("u_MVP", mvp);
 				m_Renderer.Draw(m_Chunks[chunkInstanceX][chunkInstanceZ]->m_Model.m_Va, m_Chunks[chunkInstanceX][chunkInstanceZ]->m_Model.m_Ib, m_Shader);
-
 			}
 		}
 	} 
@@ -214,6 +212,6 @@ void test::TestBatching::ChangeCursorLockState()
 	}
 
 	if (Input::IsKeyPressed(GLFW_KEY_ESCAPE)) {
-		glfwDestroyWindow(Application::GetWindow()); // throws error but idc for now
+		glfwSetWindowShouldClose(Application::GetWindow(), GLFW_TRUE); // throws error but idc for now
 	}
 }
