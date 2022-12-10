@@ -25,6 +25,7 @@ namespace test {
 		CubeMap m_Overlay;
 		Renderer m_Renderer;
 		Skybox m_Skybox;
+		Chunk* m_Chunks[14][14];
 
 
 		glm::mat4 m_Proj;

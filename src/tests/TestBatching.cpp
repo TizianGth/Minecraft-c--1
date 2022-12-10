@@ -19,26 +19,32 @@ Textures grassOverlay[6] = { GrassMask,GrassMask,Grass, Null, GrassMask,GrassMas
 Textures null[6] = { Null,Null, Null, Null, Null, Null };
 Textures DirtBlock[6] = { Dirt,Dirt,Dirt, Dirt, Dirt,Dirt };
 
-Chunk* chunk = nullptr;
-
-int SCREEN_WIDTH = 640 * 2;
-int SCREEN_HEIGHT = 480 * 2;
-float screenHalfX = SCREEN_WIDTH / 2;
-float screenHalfY = SCREEN_HEIGHT / 2;
 GLFWwindow* applWindow = nullptr;
 test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Texture("res/textures/dirt.png")
 {
 	m_CubeMap.Load(DirtBlock, 0);
 	m_Overlay.Load(grassOverlay, 0);
 
-	chunk = new Chunk;
-	chunk->Generate();
-	chunk->FillUpTest();
-	chunk->GenerateMeshes();
+	for (int z = 0; z < 14; z++) {
+		for (int x = 0; x < 14; x++) {
+			m_Chunks[x][z] = new Chunk;
+			m_Chunks[x][z]->SetChunkPosition(glm::vec2(x, z));
+			m_Chunks[x][z]->Generate();
+			m_Chunks[x][z]->FillUpTest();
+		}
+	}
+	for (int z = 0; z < 14; z++) {
+		for (int x = 0; x < 14; x++) {
+			// TODO: I shouldnt set the allChunksPointer on each Chunk (because theire always the same), instead have them stored in eg this class
+			// then I could also move "GenerateMeshes" in the first for loop and wouldnt need the second for loop anymore
+			m_Chunks[x][z]->SetAllChunksPointer(m_Chunks);
+			m_Chunks[x][z]->GenerateMeshes();
+		}
+	}
 
 	m_Proj = glm::perspective(
 		glm::radians(70.0f),
-		(float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
+		(float)Application::GetWindowWidth() / (float)Application::GetWindowHeight(),
 		0.5f, 1000.0f);
 	m_View = glm::mat4(1.0f);
 	m_View = glm::translate(m_View, glm::vec3(0.0f, 0.0f, 00.0f));
@@ -53,7 +59,7 @@ test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Tex
 	m_Shader.Bind();
 
 	applWindow = Application::GetWindow();
-	glfwSetCursorPos(applWindow, screenHalfX, screenHalfY);
+	glfwSetCursorPos(applWindow, Application::GetWindowWidth() / 2, Application::GetWindowHeight() / 2);
 }
 
 test::TestBatching::~TestBatching()
@@ -122,16 +128,10 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 		for (int chunkInstanceZ = 0; chunkInstanceZ < 14; chunkInstanceZ++) {
 			{
 				m_Model = glm::translate(glm::mat4(1.0f), translation + glm::vec3(chunkInstanceX * CHUNK_SIZE, 0.0f, chunkInstanceZ * CHUNK_SIZE));
-				// model = glm::scale(model, glm::vec3(1f, 0.1f, 0.1f));
-				/*m_Model = glm::rotate(m_Model, glm::radians(m_Rotation.x), glm::vec3(0.0f, 1.0f, 0.0f));;
-				m_Model = glm::rotate(m_Model, glm::radians(m_Rotation.y), glm::vec3(1.0f, 0.0f, 0.0f));;
-				m_Model = glm::rotate(m_Model, glm::radians(m_Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));;   */
 				glm::mat4 mvp = m_Proj * m_View * m_Model;
 
 				m_Shader.SetUniformMat4f("u_MVP", mvp);
-
-
-				m_Renderer.Draw(chunk->m_Model.m_Va, chunk->m_Model.m_Ib, m_Shader);
+				m_Renderer.Draw(m_Chunks[chunkInstanceX][chunkInstanceZ]->m_Model.m_Va, m_Chunks[chunkInstanceX][chunkInstanceZ]->m_Model.m_Ib, m_Shader);
 
 			}
 		}
@@ -150,10 +150,15 @@ void test::TestBatching::OnImGuiRender()
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }
 
+int screenHalfX;
+int screenHalfY;
+
 void test::TestBatching::MouseMovement()
 {
 	if (!cursorLocked) return;
 	auto position = Input::GetMousePosition();
+	screenHalfX = Application::GetWindowWidth() / 2;
+	screenHalfY = Application::GetWindowHeight() / 2;
 	glfwSetCursorPos(applWindow, screenHalfX, screenHalfY);
 	//std::cout << position.first - screenHalfX << " " << position.second - screenHalfY << std::endl;
 
@@ -209,6 +214,6 @@ void test::TestBatching::ChangeCursorLockState()
 	}
 
 	if (Input::IsKeyPressed(GLFW_KEY_ESCAPE)) {
-		glfwDestroyWindow(Application::GetWindow());
+		glfwDestroyWindow(Application::GetWindow()); // throws error but idc for now
 	}
 }

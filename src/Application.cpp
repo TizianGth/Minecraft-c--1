@@ -74,7 +74,7 @@ int main(void)
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
-
+    //glfwWindowHint(GLFW_SAMPLES, 4);
     window = glfwCreateWindow(ScreenWidth, ScreenHeight, "C++", NULL, NULL);
     if (!window)
     {
@@ -91,6 +91,8 @@ int main(void)
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1.0f);
     
+    //glEnable(GL_MULTISAMPLE);
+
     ImGui::CreateContext();
     ImGui_ImplGlfwGL3_Init(window, true);
     ImGui::StyleColorsDark;
@@ -120,4 +122,14 @@ int main(void)
 GLFWwindow* Application::GetWindow()
 {
     return window;
+}
+
+int Application::GetWindowWidth()
+{
+    return ScreenWidth;
+}
+
+int Application::GetWindowHeight()
+{
+    return ScreenHeight;
 }
