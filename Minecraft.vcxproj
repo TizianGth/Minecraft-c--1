@@ -311,6 +311,8 @@
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Input.h" />
+    <ClInclude Include="src\world\Camera.h" />
+    <ClInclude Include="src\world\GameObject.h" />
     <ClInclude Include="src\world\Mesh.h" />
     <ClInclude Include="src\world\Model.h" />
     <ClInclude Include="src\Renderer.h" />
