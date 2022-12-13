@@ -90,6 +90,7 @@ int main(void)
     
     //glEnable(GL_MULTISAMPLE);
 
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     ImGui::CreateContext();
     ImGui_ImplGlfwGL3_Init(window, true);
     ImGui::StyleColorsDark;

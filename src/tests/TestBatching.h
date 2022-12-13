@@ -3,7 +3,7 @@
 #include "Test.h"
 #include "Texture.h"
 #include "Model.h"
-#include "Chunk.h"
+#include "ChunkManager.h"
 #include "Skybox.h"
 
 namespace test {
@@ -25,17 +25,10 @@ namespace test {
 		CubeMap m_Overlay;
 		Renderer m_Renderer;
 		Skybox m_Skybox;
-		Chunk* m_Chunks[14][14];
-
 
 		glm::mat4 m_Proj;
 		glm::mat4 m_Model;
 		glm::mat4 m_Mvp;
-
-		// imgui
-		float m_TranslationX = 0;
-		float m_TranslationY = -2;
-		float m_TranslationZ = -6;
 
 		glm::vec3 m_Rotation = glm::vec3(0.0f);
 

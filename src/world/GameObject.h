@@ -7,10 +7,10 @@
 
 class GameObject {
 public:
-	glm::vec3 m_Position = glm::vec3(0.0f,0.0f,1.0f);
+	glm::vec3 m_Position = glm::vec3(0.0f,0.0f,0);
 	glm::vec3 m_rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
-	glm::vec3 m_Direction = glm::normalize(m_Position - glm::vec3(0, 0, 0));
+	glm::vec3 m_Direction = glm::normalize(m_Position - glm::vec3(0.0f, 0, 1.0f));
 	glm::vec3 m_Right = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), m_Direction));
 	glm::vec3 m_Up = glm::cross(m_Direction, m_Right);
 

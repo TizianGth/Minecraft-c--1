@@ -15,12 +15,10 @@ public:
 	void Generate();
 	void GenerateMeshes();
 	void FillUpTest();
-	void SetAllChunksPointer(Chunk* chunks[14][14]);
 	void SetChunkPosition(glm::vec2 chunkPosition);
 
 	Mesh m_Mesh;
 	Model m_Model;
-	Chunk* m_AllChunks[14][14];
 	glm::vec2 m_ChunkPosition;
 private:
 	unsigned char m_blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT];
@@ -28,7 +26,7 @@ private:
 	std::vector<int> ConvertPositionToVertices(glm::vec3& position, int materialID);
 	std::vector<int> ConvertPositionToIndex(int blockCount, Faces faces);
 	Faces GetNeighbouringBlocks(glm::vec3& position);
-	int GetBlockFromOtherChunk(glm::vec3& position);
-	int GetIndex(glm::vec3& position);
-	int GetBlock(glm::vec3& position);
+	const int GetBlockFromOtherChunk(glm::vec3& position);
+	const int GetIndex(glm::vec3& position);
+	const int GetBlock(glm::vec3& position);
 };

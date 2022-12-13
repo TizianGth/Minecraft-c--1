@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdint.h>
 #include <chrono>
+#include "ChunkManager.h"
 
 //TODO: CHUNK AND WORLD POSITION CONVERSION
 Chunk::Chunk()
@@ -18,15 +19,15 @@ std::vector<int> Chunk::ConvertPositionToVertices(glm::vec3& position, int mater
 	int y = position.y;
 	int z = position.z;
 	std::vector<int> result = {
-	   x,     y,     (z + 1), -1, -1, 1, materialID,
-	   (x + 1), y,    (z + 1),  1, -1, 1, materialID,
-	   (x + 1), (y + 1), (z + 1),  1,  1, 1, materialID,
-	   x,     (y + 1), (z + 1), -1,  1, 1, materialID,
+		 x		,  y		, (z + 1)	, -1, -1,  1, materialID,
+		(x + 1)	,  y		, (z + 1)	,  1, -1,  1, materialID,
+		(x + 1)	, (y + 1)	, (z + 1)	,  1,  1,  1, materialID,
+		 x		, (y + 1)	, (z + 1)	, -1,  1,  1, materialID,
 
-	   x,     y,     z, -1, -1, -1, materialID,
-	   (x + 1), y,     z,  1, -1, -1, materialID,
-	   (x + 1), (y + 1), z,  1,  1, -1, materialID,
-	   x,     (y + 1), z, -1,  1, -1, materialID
+	    x		,  y		,  z		, -1, -1, -1, materialID,
+	   (x + 1)	,  y		,  z		,  1, -1, -1, materialID,
+	   (x + 1)	, (y + 1)	,  z		,  1,  1, -1, materialID,
+		x		, (y + 1)	,  z		, -1,  1, -1, materialID
 	};
 
 	return result;
@@ -124,19 +125,11 @@ void Chunk::FillUpTest()
 
 }
 
-void Chunk::SetAllChunksPointer(Chunk* chunks[14][14])
-{
-	for (int x = 0; x < 14; x++) {
-		for (int z = 0; z < 14; z++) {
-			m_AllChunks[x][z] = chunks[x][z];
-		}
-	}
-}
-
 void Chunk::SetChunkPosition(glm::vec2 chunkPosition)
 {
 	m_ChunkPosition = chunkPosition;
 }
+
 
 /// <summary>
 /// Fill whole chunk with air blocks (blockId = 0) or any other block
@@ -154,7 +147,7 @@ void Chunk::Generate()
 		m_blocks[i] = 0;
 
 		glm::vec3 position(progressToNextZ, currentYLevel, currentZLevel);
-		m_localBlockPositions[i] = position;
+		//m_localBlockPositions[i] = position;
 
 		progressToNextZ++;
 		progressToNextY++;
@@ -213,13 +206,13 @@ void Chunk::GenerateMeshes()
 
 		for (int v = 0; v < newIndicesLength; v++) {
 			m_Mesh.indices.emplace_back(newIndices[v]);
-		}
+		} 
 	}
 
 	m_Model.Set(m_Mesh);
 	m_Model.addVB();
 	m_Model.addIB();
-	m_Model.addVA();
+	m_Model.addVA(); 
 
 }
 
@@ -291,7 +284,7 @@ Faces Chunk::GetNeighbouringBlocks(glm::vec3& position)
 	return localFaces;
 }
 
-int Chunk::GetBlockFromOtherChunk(glm::vec3& position)
+const int Chunk::GetBlockFromOtherChunk(glm::vec3& position)
 {
 	//if (position.x < 0 || position.y < 0 || position.z < 0) return -1;
 	if (position.y >= CHUNK_HEIGHT || position.y < 0) return 0; // return "air block" when at max y build limit 
@@ -315,24 +308,25 @@ int Chunk::GetBlockFromOtherChunk(glm::vec3& position)
 		inChunkPosition.z = CHUNK_SIZE + position.z;;
 	}
 	//inChunkPosition = glm::vec3(CHUNK_SIZE - position.x,position.y, CHUNK_SIZE - position.z);
-	if (desiredChunkX < 0 || desiredChunkZ < 0 || desiredChunkX >= 14 || desiredChunkZ >= 14) {
+	if (desiredChunkX < 0 || desiredChunkZ < 0 || desiredChunkX >= ChunkManager::Get().GetDimensions() || desiredChunkZ >= ChunkManager::Get().GetDimensions()) {
 		return -1;
 	}
 	if (desiredChunkX >= 0 || desiredChunkZ >= 0) {
-		int id = m_AllChunks[desiredChunkX][desiredChunkZ]->GetBlock(inChunkPosition);
-		return id;
+		auto ref = ChunkManager::Get();
+		int id = ref.GetChunksPointer()[desiredChunkX][desiredChunkZ]->GetBlock(inChunkPosition);
+		return id; 
 	}
 
 }
 
-int Chunk::GetIndex(glm::vec3& position)
+const int Chunk::GetIndex(glm::vec3& position)
 {
 	if (position.x < 0 || position.x >= CHUNK_SIZE || position.z < 0 || position.z >= CHUNK_SIZE || position.y < 0 || position.y >= CHUNK_HEIGHT) return -1;
 
 	return position.x + position.y * (CHUNK_HEIGHT)+position.z * (CHUNK_SIZE);
 }
 
-int Chunk::GetBlock(glm::vec3& position)
+const int Chunk::GetBlock(glm::vec3& position)
 {
 	int index = GetIndex(position);
 	int id = m_blocks[index];
