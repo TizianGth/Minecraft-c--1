@@ -19,7 +19,6 @@ public:
 	void FillUpTest();
 	void SetChunkPosition(glm::vec2 chunkPosition);
 public:
-	Mesh m_Mesh;
 	Model m_Model;
 	glm::vec2 m_ChunkPosition;
 

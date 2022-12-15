@@ -163,13 +163,10 @@ void Chunk::Generate()
 
 void Chunk::GenerateMeshes()
 {
-
-	m_Mesh.vertices.clear();
-	m_Mesh.indices.clear();
+	Mesh mesh;
 
 	// Accounts for Air blocks, because they shouldnt be counted to index
 	int minus = 0;
-
 
 	for (int i = 0; i < CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT; i++) {
 		if (m_blocks[i] == 0) {
@@ -185,23 +182,23 @@ void Chunk::GenerateMeshes()
 		std::vector<int> newVertices = ConvertPositionToVertices(position, materialID);
 		int newVerticesLength = newVertices.size();
 
-		m_Mesh.vertices.reserve(newVerticesLength);
+		mesh.vertices.reserve(newVerticesLength);
 
 		for (int v = 0; v < newVerticesLength; v++) {
-			m_Mesh.vertices.emplace_back(newVertices[v]);
+			mesh.vertices.emplace_back(newVertices[v]);
 		}
 
 		std::vector<int> newIndices = ConvertPositionToIndex(i - minus, faces);
 		int newIndicesLength = newIndices.size();
 
-		m_Mesh.indices.reserve(newIndicesLength);
+		mesh.indices.reserve(newIndicesLength);
 
 		for (int v = 0; v < newIndicesLength; v++) {
-			m_Mesh.indices.emplace_back(newIndices[v]);
+			mesh.indices.emplace_back(newIndices[v]);
 		}
 	}
 
-	m_Model.Set(m_Mesh);
+	m_Model.Set(mesh);
 	m_Model.addVB();
 	m_Model.addIB();
 	m_Model.addVA();

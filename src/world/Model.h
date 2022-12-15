@@ -6,8 +6,6 @@
 
 class Model {
 public:
-
-
 	Mesh m_Mesh;
 	VertexBuffer m_Vb;
 	IndexBuffer m_Ib;

@@ -18,7 +18,6 @@ void Model::addVA()
 void Model::Set(Mesh& mesh)
 {
     m_Layout.Push<float>(3);
-    //layout.Push<float>(4);
     m_Layout.Push<float>(3);
     m_Layout.Push<float>(1);
     m_Mesh = mesh;
