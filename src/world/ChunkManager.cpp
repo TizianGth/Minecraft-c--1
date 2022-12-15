@@ -25,7 +25,7 @@ void ChunkManager::GenerateChunks()
 			m_Chunks[x][z] = new Chunk;
 			m_Chunks[x][z]->SetChunkPosition(glm::vec2(x, z));
 			m_Chunks[x][z]->Generate();
-			m_Chunks[x][z]->FillUpTest(); 
+			m_Chunks[x][z]->FillUpTest();
 		}
 	}
 	for (int z = 0; z < ChunkDimensions; z++) {

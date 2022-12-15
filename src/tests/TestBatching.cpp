@@ -71,7 +71,7 @@ void test::TestBatching::OnUpdate(float deltaTime)
 	//std::cout <<"(" << std::floorf(cam.m_Position.x / (CHUNK_SIZE) + ChunkManager::Get().GetDimensions() / 2)<< ", " << std::floorf(cam.m_Position.z / (CHUNK_SIZE) +ChunkManager::Get().GetDimensions() / 2) <<  ")" << std::endl;
 }
 double rotationX = -90;
-double rotationY = 0;
+double rotationY = -10;
 
 void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 {
@@ -86,18 +86,21 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 	m_Proj = glm::perspective(
 		glm::radians(70.0f),
 		(float)screenWidth / (float)screenHeight,
-		0.2f, 3000.0f);
+		0.2f, 1000.0f);
 
-	m_Mvp = glm::translate(m_Proj * cam.m_Mat4 * m_Model, cam.m_Position);
+	m_Model = glm::translate(glm::mat4(1.0f), cam.m_Position);
+	m_Mvp = m_Proj * cam.m_Mat4 * m_Model;
 
 	m_Skybox.Render(m_Mvp);
 	m_Renderer.Draw(m_Skybox.m_Model.m_Va, m_Skybox.m_Model.m_Ib, m_Skybox.m_Shader);
 
 	m_Shader.Bind();
 	m_Shader.SetUniform4f("u_Color", glm::vec4(m_Color[0], m_Color[1], m_Color[2], m_Color[3]));
+	int dimensions = ChunkManager::Get().GetDimensions();
+
 	// rendering 14x14 chunks atm all use the same Mesh/Model, but already seperate draw calls
 	// seperate draw calls prop better becasue otherwise the buffers and everything woudl just be 1 giant blob + 14*14 draw calls isnt the worst
-	int dimensions = ChunkManager::Get().GetDimensions();
+
 	for (int chunkInstanceX = 0; chunkInstanceX < dimensions; chunkInstanceX++) {
 		for (int chunkInstanceZ = 0; chunkInstanceZ < dimensions; chunkInstanceZ++) {
 			{

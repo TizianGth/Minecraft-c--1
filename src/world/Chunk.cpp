@@ -24,7 +24,7 @@ std::vector<int> Chunk::ConvertPositionToVertices(glm::vec3& position, int mater
 		(x + 1)	, (y + 1)	, (z + 1)	,  1,  1,  1, materialID,
 		 x		, (y + 1)	, (z + 1)	, -1,  1,  1, materialID,
 
-	    x		,  y		,  z		, -1, -1, -1, materialID,
+		x		,  y		,  z		, -1, -1, -1, materialID,
 	   (x + 1)	,  y		,  z		,  1, -1, -1, materialID,
 	   (x + 1)	, (y + 1)	,  z		,  1,  1, -1, materialID,
 		x		, (y + 1)	,  z		, -1,  1, -1, materialID
@@ -97,7 +97,7 @@ void Chunk::FillUpTest()
 	// leave 1 block on each side otherwise, faces on the outside wont be rendered because they touch the other chunk
 	// TODO: debug why if face touches other chunk sometimes itll still get rendered
 	glm::vec3 position = glm::vec3(0, 0, 0);
-	
+
 	for (int x = 0; x < 16; x++) {
 		for (int z = 0; z < 16; z++) {
 			for (int y = 1; y < 3; y++) {
@@ -147,7 +147,7 @@ void Chunk::Generate()
 		m_blocks[i] = 0;
 
 		glm::vec3 position(progressToNextZ, currentYLevel, currentZLevel);
-		//m_localBlockPositions[i] = position;
+		m_localBlockPositions[i] = position;
 
 		progressToNextZ++;
 		progressToNextY++;
@@ -206,13 +206,13 @@ void Chunk::GenerateMeshes()
 
 		for (int v = 0; v < newIndicesLength; v++) {
 			m_Mesh.indices.emplace_back(newIndices[v]);
-		} 
+		}
 	}
 
 	m_Model.Set(m_Mesh);
 	m_Model.addVB();
 	m_Model.addIB();
-	m_Model.addVA(); 
+	m_Model.addVA();
 
 }
 
@@ -314,7 +314,7 @@ const int Chunk::GetBlockFromOtherChunk(glm::vec3& position)
 	if (desiredChunkX >= 0 || desiredChunkZ >= 0) {
 		auto ref = ChunkManager::Get();
 		int id = ref.GetChunksPointer()[desiredChunkX][desiredChunkZ]->GetBlock(inChunkPosition);
-		return id; 
+		return id;
 	}
 
 }
@@ -332,9 +332,3 @@ const int Chunk::GetBlock(glm::vec3& position)
 	int id = m_blocks[index];
 	return id;
 }
-
-
-
-
-
-
