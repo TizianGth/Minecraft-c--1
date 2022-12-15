@@ -40,5 +40,6 @@ void main() {
 		color = layer;
 	}
 	else if(id == 0) {
+		color = layer;
 	}
 };

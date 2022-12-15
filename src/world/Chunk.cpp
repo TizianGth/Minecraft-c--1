@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <chrono>
 #include "ChunkManager.h"
+#include <algorithm>
 
 //TODO: CHUNK AND WORLD POSITION CONVERSION
 Chunk::Chunk()
@@ -98,31 +99,23 @@ void Chunk::FillUpTest()
 	// TODO: debug why if face touches other chunk sometimes itll still get rendered
 	glm::vec3 position = glm::vec3(0, 0, 0);
 
+	 siv::PerlinNoise::seed_type seed = 223456u;
+
+	 siv::PerlinNoise perlin{ seed };
+
 	for (int x = 0; x < 16; x++) {
 		for (int z = 0; z < 16; z++) {
-			for (int y = 1; y < 3; y++) {
+			int noise = (int)(perlin.octave2D_01((x + (m_ChunkPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkPosition.y * CHUNK_SIZE)) * 0.0625, 4) * 8) + 1;
+			//std::cout << noise << std::endl;
+			for (int y = 0; y < noise; y++) {
 				position = glm::vec3(x, y, z);
 				m_blocks[GetIndex(position)] = 1;
-			}
-		}
-	}
 
-	for (int x = 0; x < 15; x++) {
-		for (int z = 0; z < 15; z++) {
-			for (int y = 3; y < 4; y++) {
 				position = glm::vec3(x, y, z);
 				m_blocks[GetIndex(position)] = 2;
 			}
 		}
 	}
-	/*
-	for (int x = 0; x < CHUNK_SIZE-1; x++) {
-		for (int y = 0; y < 10; y++) {
-			position = glm::vec3(x, y, 15);
-			m_blocks[GetIndex(position)] = 1;
-		}
-	} */
-
 }
 
 void Chunk::SetChunkPosition(glm::vec2 chunkPosition)
@@ -227,57 +220,37 @@ Faces Chunk::GetNeighbouringBlocks(glm::vec3& position)
 	Faces localFaces;
 
 	glm::vec3 offsetPosition = position + glm::vec3(1, 0, 0);
-	int index = GetIndex(offsetPosition);
-	if (index != -1 && m_blocks[index] == 0) {
+	int block = GetBlockFromOtherChunk(offsetPosition);
+	if (block == 0) {
 		localFaces.faces[localFaces.right] = true;
 	}
-	else if (index == -1 && GetBlockFromOtherChunk(offsetPosition) == 0) {
-		localFaces.faces[localFaces.right] = true;
-	}
-
 	offsetPosition = position + glm::vec3(-1, 0, 0);
-	index = GetIndex(offsetPosition);
-	if (index != -1 && m_blocks[index] == 0) {
-		localFaces.faces[localFaces.left] = true;
-	}
-	else if (index == -1 && GetBlockFromOtherChunk(offsetPosition) == 0) {
+	block = GetBlockFromOtherChunk(offsetPosition);
+	if (block == 0) {
 		localFaces.faces[localFaces.left] = true;
 	}
 
 	offsetPosition = position + glm::vec3(0, 1, 0);
-	index = GetIndex(offsetPosition);
-	if (index != -1 && m_blocks[index] == 0) {
-		localFaces.faces[localFaces.top] = true;
-	}
-	else if (index == -1 && GetBlockFromOtherChunk(offsetPosition) == 0) {
+	block = GetBlockFromOtherChunk(offsetPosition);
+	if (block == 0) {
 		localFaces.faces[localFaces.top] = true;
 	}
 
 	offsetPosition = position + glm::vec3(0, -1, 0);
-	index = GetIndex(offsetPosition);
-	if (index != -1 && m_blocks[index] == 0) {
-		localFaces.faces[localFaces.bottom] = true;
-	}
-	else if (index == -1 && GetBlockFromOtherChunk(offsetPosition) == 0) {
+	block = GetBlockFromOtherChunk(offsetPosition);
+	if (block == 0) {
 		localFaces.faces[localFaces.bottom] = true;
 	}
 
 	offsetPosition = position + glm::vec3(0, 0, -1);
-	index = GetIndex(offsetPosition);
-	if (index != -1 && m_blocks[index] == 0) {
-		localFaces.faces[localFaces.back] = true;
-	}
-	else if (index == -1 && GetBlockFromOtherChunk(offsetPosition) == 0) {
+	block = GetBlockFromOtherChunk(offsetPosition);
+	if (block == 0) {
 		localFaces.faces[localFaces.back] = true;
 	}
 
 	offsetPosition = position + glm::vec3(0, 0, 1);
-	index = GetIndex(offsetPosition);
-
-	if (index != -1 && m_blocks[index] == 0) {
-		localFaces.faces[localFaces.front] = true;
-	}
-	else if (index == -1 && GetBlockFromOtherChunk(offsetPosition) == 0) {
+	block = GetBlockFromOtherChunk(offsetPosition);
+	if (block == 0) {
 		localFaces.faces[localFaces.front] = true;
 	}
 
@@ -286,10 +259,9 @@ Faces Chunk::GetNeighbouringBlocks(glm::vec3& position)
 
 const int Chunk::GetBlockFromOtherChunk(glm::vec3& position)
 {
-	//if (position.x < 0 || position.y < 0 || position.z < 0) return -1;
 	if (position.y >= CHUNK_HEIGHT || position.y < 0) return 0; // return "air block" when at max y build limit 
-	int desiredChunkX = 0;
-	int desiredChunkZ = 0;
+	int desiredChunkX = m_ChunkPosition.x;
+	int desiredChunkZ = m_ChunkPosition.y;
 	glm::vec3 inChunkPosition = glm::vec3(position.x, position.y, position.z);
 	if (position.x >= CHUNK_SIZE) {
 		desiredChunkX = m_ChunkPosition.x + 1;
@@ -301,22 +273,21 @@ const int Chunk::GetBlockFromOtherChunk(glm::vec3& position)
 	}
 	if (position.z >= CHUNK_SIZE) {
 		desiredChunkZ = m_ChunkPosition.y + 1;
-		inChunkPosition.x = position.z - CHUNK_SIZE;
+		inChunkPosition.z = position.z - CHUNK_SIZE;
 	}
 	else if (position.z < 0) {
 		desiredChunkZ = m_ChunkPosition.y - 1;
 		inChunkPosition.z = CHUNK_SIZE + position.z;;
 	}
-	//inChunkPosition = glm::vec3(CHUNK_SIZE - position.x,position.y, CHUNK_SIZE - position.z);
+
 	if (desiredChunkX < 0 || desiredChunkZ < 0 || desiredChunkX >= ChunkManager::Get().GetDimensions() || desiredChunkZ >= ChunkManager::Get().GetDimensions()) {
 		return -1;
 	}
-	if (desiredChunkX >= 0 || desiredChunkZ >= 0) {
+	if (desiredChunkX >= 0 && desiredChunkZ >= 0) {
 		auto ref = ChunkManager::Get();
 		int id = ref.GetChunksPointer()[desiredChunkX][desiredChunkZ]->GetBlock(inChunkPosition);
 		return id;
 	}
-
 }
 
 const int Chunk::GetIndex(glm::vec3& position)
@@ -330,5 +301,6 @@ const int Chunk::GetBlock(glm::vec3& position)
 {
 	int index = GetIndex(position);
 	int id = m_blocks[index];
+	
 	return id;
 }

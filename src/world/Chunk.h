@@ -3,6 +3,7 @@
 #include "Model.h"
 #include "Blockytpe.h"
 #include "Faces.h"
+#include "PerlinNoise.h"
 
 const int CHUNK_SIZE = 16;
 const int CHUNK_HEIGHT = 256;

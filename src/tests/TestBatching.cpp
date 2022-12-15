@@ -67,6 +67,7 @@ void test::TestBatching::OnUpdate(float deltaTime)
 	KeyboardMovement(deltaTime);
 	ChangeCursorLockState();
 
+
 	//std::cout << "(" << std::floorf(cam.m_Position.x) << ", " << std::floorf(cam.m_Position.y) << ", " << std::floorf(cam.m_Position.z) << ") ";
 	//std::cout <<"(" << std::floorf(cam.m_Position.x / (CHUNK_SIZE) + ChunkManager::Get().GetDimensions() / 2)<< ", " << std::floorf(cam.m_Position.z / (CHUNK_SIZE) +ChunkManager::Get().GetDimensions() / 2) <<  ")" << std::endl;
 }
@@ -78,11 +79,12 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 	m_Renderer.Clear();
 
 	auto& chunks = ChunkManager::Get().GetChunksPointer();
+
 	/*
 	1. Make 1 Big VA, BV, etc for each chunk and only change when needed
 	2. Change VB, Va on the fly with eg Vectors to only bind visible/used information for each chunk (every frame?)
-	
 	*/
+
 	m_Proj = glm::perspective(
 		glm::radians(70.0f),
 		(float)screenWidth / (float)screenHeight,
@@ -104,11 +106,12 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 	for (int chunkInstanceX = 0; chunkInstanceX < dimensions; chunkInstanceX++) {
 		for (int chunkInstanceZ = 0; chunkInstanceZ < dimensions; chunkInstanceZ++) {
 			{
-				m_Model = glm::translate(glm::mat4(1.0f), glm::vec3((chunkInstanceX - dimensions/2) * CHUNK_SIZE, 0.0f, (chunkInstanceZ - dimensions/2) * CHUNK_SIZE));
+				auto chunk = chunks[chunkInstanceX][chunkInstanceZ];
+				m_Model = glm::translate(glm::mat4(1.0f), glm::vec3((chunk->m_ChunkPosition.x - dimensions/2) * CHUNK_SIZE, 0.0f, (chunk->m_ChunkPosition.y - dimensions/2) * CHUNK_SIZE));
 				m_Mvp = m_Proj * cam.m_Mat4 * m_Model;
 
 				m_Shader.SetUniformMat4f("u_MVP", m_Mvp);
-				m_Renderer.Draw(chunks[chunkInstanceX][chunkInstanceZ]->m_Model.m_Va, chunks[chunkInstanceX][chunkInstanceZ]->m_Model.m_Ib, m_Shader);
+				m_Renderer.Draw(chunk->m_Model.m_Va, chunk->m_Model.m_Ib, m_Shader);
 			}
 		}
 	} 
@@ -117,6 +120,9 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 void test::TestBatching::OnImGuiRender()
 {
 	ImGui::ColorEdit4("Color", m_Color);
+
+	ImGui::Text("Player position (%.1f, %.1f, %.1f)", cam.m_Position.x, cam.m_Position.y, cam.m_Position.z);
+	ImGui::Text("Player position in Chunk (%.1f, %.1f, %.1f)", (std::floor(cam.m_Position.x / 16) + 2), cam.m_Position.y, (std::floor(cam.m_Position.z / 16) + 2));
 
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }

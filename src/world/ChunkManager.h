@@ -16,6 +16,6 @@ public:
 private:
 	ChunkManager();
 	static ChunkManager s_Instance;
-	int ChunkRenderDistance = 10; // eg 1 active chunk (player in) + 5 in each direction = 11x11 Chunks
+	int ChunkRenderDistance = 5; // eg 1 active chunk (player in) + 5 in each direction = 11x11 Chunks
 	std::vector<std::vector<Chunk*>> m_Chunks;
 };

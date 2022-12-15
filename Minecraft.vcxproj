@@ -106,7 +106,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\include;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\tests;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\world;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\vendor;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\Platform;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\Platform\Windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\include;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\tests;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\world;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\vendor;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\Platform;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\Platform\Windows;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\noise;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\include;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\tests;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\world;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\vendor;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\Platform;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\Platform\Windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\include;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\tests;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\world;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\vendor;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\Platform;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\Platform\Windows;C:\Users\Tizian\source\repos\Minecraft\Minecraft-c--1\src\noise;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -312,6 +312,7 @@
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Input.h" />
+    <ClInclude Include="src\noise\PerlinNoise.h" />
     <ClInclude Include="src\world\Camera.h" />
     <ClInclude Include="src\world\ChunkManager.h" />
     <ClInclude Include="src\world\GameObject.h" />
