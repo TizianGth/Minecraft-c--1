@@ -25,6 +25,7 @@ GLFWwindow* applWindow = nullptr;
 Camera cam;
 test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Texture("res/textures/dirt.png")
 {
+
 	m_CubeMap.Load(DirtBlock, 0);
 	m_Overlay.Load(grassOverlay, 0);
 

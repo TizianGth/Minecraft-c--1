@@ -1,4 +1,3 @@
-#include "Chunk.h"
 #include <iostream>
 #include <stdint.h>
 #include <chrono>
@@ -15,7 +14,7 @@ Chunk::~Chunk()
 
 }
 
-std::vector<int> Chunk::ConvertPositionToVertices(glm::vec3& position, int materialID) {
+std::vector<int> Chunk::ConvertPositionToVertices(glm::vec3 position, int materialID) {
 	int x = position.x;
 	int y = position.y;
 	int z = position.z;
@@ -105,7 +104,7 @@ void Chunk::FillUpTest()
 
 	for (int x = 0; x < 16; x++) {
 		for (int z = 0; z < 16; z++) {
-			int noise = (int)(perlin.octave2D_01((x + (m_ChunkPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkPosition.y * CHUNK_SIZE)) * 0.0625, 4) * 8) + 1;
+			int noise = (int)(perlin.octave2D_01((x + (m_ChunkPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 10) + 1;
 			//std::cout << noise << std::endl;
 			for (int y = 0; y < noise; y++) {
 				position = glm::vec3(x, y, z);
@@ -139,7 +138,7 @@ void Chunk::Generate()
 	for (int i = 0; i < CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT; i++) {
 		m_blocks[i] = 0;
 
-		glm::vec3 position(progressToNextZ, currentYLevel, currentZLevel);
+		Vector3::UnsignedChar position(progressToNextZ, currentYLevel, currentZLevel);
 		m_localBlockPositions[i] = position;
 
 		progressToNextZ++;
@@ -177,7 +176,7 @@ void Chunk::GenerateMeshes()
 			minus++;
 			continue;
 		}
-		glm::vec3 position = m_localBlockPositions[i];
+		glm::vec3 position = glm::vec3(m_localBlockPositions[i].x, m_localBlockPositions[i].y, m_localBlockPositions[i].z);
 		int materialID = m_blocks[i];
 		Faces faces = GetNeighbouringBlocks(position);
 
@@ -215,7 +214,7 @@ void Chunk::GenerateMeshes()
 /// Can be important when y is getting greater. Not worth it atm
 /// </summary>
 
-Faces Chunk::GetNeighbouringBlocks(glm::vec3& position)
+Faces Chunk::GetNeighbouringBlocks(glm::vec3 position)
 {
 	Faces localFaces;
 
@@ -257,7 +256,7 @@ Faces Chunk::GetNeighbouringBlocks(glm::vec3& position)
 	return localFaces;
 }
 
-const int Chunk::GetBlockFromOtherChunk(glm::vec3& position)
+const int Chunk::GetBlockFromOtherChunk(glm::vec3 position)
 {
 	if (position.y >= CHUNK_HEIGHT || position.y < 0) return 0; // return "air block" when at max y build limit 
 	int desiredChunkX = m_ChunkPosition.x;
@@ -290,14 +289,14 @@ const int Chunk::GetBlockFromOtherChunk(glm::vec3& position)
 	}
 }
 
-const int Chunk::GetIndex(glm::vec3& position)
+const int Chunk::GetIndex(glm::vec3 position)
 {
 	if (position.x < 0 || position.x >= CHUNK_SIZE || position.z < 0 || position.z >= CHUNK_SIZE || position.y < 0 || position.y >= CHUNK_HEIGHT) return -1;
 
 	return position.x + position.y * (CHUNK_HEIGHT)+position.z * (CHUNK_SIZE);
 }
 
-const int Chunk::GetBlock(glm::vec3& position)
+const int Chunk::GetBlock(glm::vec3 position)
 {
 	int index = GetIndex(position);
 	int id = m_blocks[index];

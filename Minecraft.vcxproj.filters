@@ -1478,5 +1478,62 @@
     <Image Include="res\textures\Download.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\textures\dirt.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\3.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\4.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\5.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\6.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\back.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\bottom.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\front.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\left.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\right.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\Sky.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\top.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\Grass_Mask.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\Grass_Top.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\mask.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\side.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\top.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

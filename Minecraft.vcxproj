@@ -623,8 +623,27 @@
     <ClInclude Include="src\world\Skybox.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\textures\dirt.png" />
     <Image Include="res\textures\Download.png" />
+    <Image Include="res\textures\Grass_Mask.png" />
+    <Image Include="res\textures\Grass_Top.png" />
+    <Image Include="res\textures\mask.png" />
+    <Image Include="res\textures\side.png" />
+    <Image Include="res\textures\skybox\1.png" />
+    <Image Include="res\textures\skybox\2.png" />
+    <Image Include="res\textures\skybox\3.png" />
+    <Image Include="res\textures\skybox\4.png" />
+    <Image Include="res\textures\skybox\5.png" />
+    <Image Include="res\textures\skybox\6.png" />
+    <Image Include="res\textures\skybox\back.png" />
+    <Image Include="res\textures\skybox\bottom.png" />
+    <Image Include="res\textures\skybox\front.png" />
+    <Image Include="res\textures\skybox\left.png" />
+    <Image Include="res\textures\skybox\right.png" />
+    <Image Include="res\textures\skybox\Sky.png" />
+    <Image Include="res\textures\skybox\top.png" />
     <Image Include="res\textures\text.png" />
+    <Image Include="res\textures\top.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
