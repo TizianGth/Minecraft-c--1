@@ -20,7 +20,6 @@ namespace test {
 
 		Shader m_Shader;
 		Texture m_Texture;
-		//CubeMap m_CubeMaps[]
 		CubeMap m_CubeMap;
 		CubeMap m_Overlay;
 		Renderer m_Renderer;

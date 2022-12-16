@@ -15,7 +15,7 @@ Skybox::Skybox() : m_Shader("res/shaders/basic.shader")
 		-400,  400, -400, -1,  1, -1, 0  // 7
 
 	};
-	std::vector<int> indices = {
+	std::vector<unsigned int> indices = {
 		0,1,2,
 		2,3,0,
 
@@ -36,6 +36,7 @@ Skybox::Skybox() : m_Shader("res/shaders/basic.shader")
 	};
 	Mesh mesh;
 	mesh.vertices = vertices;
+	
 	mesh.indices = indices;
 	m_Model.Set(mesh);
 	m_Model.addVB();

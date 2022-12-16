@@ -14,20 +14,20 @@ Chunk::~Chunk()
 
 }
 
-std::vector<int> Chunk::ConvertPositionToVertices(glm::vec3 position, int materialID) {
+std::vector<float> Chunk::ConvertPositionToVertices(glm::vec3 position, int materialID) {
 	int x = position.x;
 	int y = position.y;
 	int z = position.z;
-	std::vector<int> result = {
-		 x		,  y		, (z + 1)	, -1, -1,  1, materialID,
-		(x + 1)	,  y		, (z + 1)	,  1, -1,  1, materialID,
-		(x + 1)	, (y + 1)	, (z + 1)	,  1,  1,  1, materialID,
-		 x		, (y + 1)	, (z + 1)	, -1,  1,  1, materialID,
-
-		x		,  y		,  z		, -1, -1, -1, materialID,
-	   (x + 1)	,  y		,  z		,  1, -1, -1, materialID,
-	   (x + 1)	, (y + 1)	,  z		,  1,  1, -1, materialID,
-		x		, (y + 1)	,  z		, -1,  1, -1, materialID
+	std::vector<float> result = {
+		(float) x		, (float) y			, (float)(z + 1)	, -1, -1,  1, (float)materialID,
+		(float)(x + 1)	, (float) y			, (float)(z + 1)	,  1, -1,  1, (float)materialID,
+		(float)(x + 1)	, (float)(y + 1)	, (float)(z + 1)	,  1,  1,  1, (float)materialID,
+		(float) x		, (float)(y + 1)	, (float)(z + 1)	, -1,  1,  1, (float)materialID,
+		(float)			  (float)			  (float)						  (float)
+		(float) x		, (float) y			, (float) z			, -1, -1, -1, (float)materialID,
+	    (float)(x + 1)	, (float) y			, (float) z			,  1, -1, -1, (float)materialID,
+	    (float)(x + 1)	, (float)(y + 1)	, (float) z			,  1,  1, -1, (float)materialID,
+		(float) x		, (float)(y + 1)	, (float) z			, -1,  1, -1, (float)materialID
 	};
 
 	return result;
@@ -104,7 +104,7 @@ void Chunk::FillUpTest()
 
 	for (int x = 0; x < 16; x++) {
 		for (int z = 0; z < 16; z++) {
-			int noise = (int)(perlin.octave2D_01((x + (m_ChunkPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 10) + 1;
+			int noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 8) + 1;
 			//std::cout << noise << std::endl;
 			for (int y = 0; y < noise; y++) {
 				position = glm::vec3(x, y, z);
@@ -117,9 +117,10 @@ void Chunk::FillUpTest()
 	}
 }
 
-void Chunk::SetChunkPosition(glm::vec2 chunkPosition)
+void Chunk::SetChunkPosition(Vector2::Int chunkPosition, Vector2::Int chunkWorldPosition)
 {
 	m_ChunkPosition = chunkPosition;
+	m_ChunkWorldPosition = chunkWorldPosition;
 }
 
 
@@ -179,7 +180,7 @@ void Chunk::GenerateMeshes()
 
 		if (faces.Count() == 6) continue;
 
-		std::vector<int> newVertices = ConvertPositionToVertices(position, materialID);
+		std::vector<float> newVertices = ConvertPositionToVertices(position, materialID);
 		int newVerticesLength = newVertices.size();
 
 		mesh.vertices.reserve(newVerticesLength);

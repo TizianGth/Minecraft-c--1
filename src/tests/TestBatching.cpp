@@ -52,6 +52,7 @@ test::TestBatching::TestBatching() : m_Shader("res/shaders/grass.shader"), m_Tex
 	cam.m_MovementSpeed = 0.01f;
 
 	ChunkManager::Get().GenerateChunks();
+	ChunkManager::Get().m_ActivLastChunk = Vector2::Int((std::floor(cam.m_Position.x / 16) + 2), (std::floor(cam.m_Position.z / 16) + 2));
 }
 
 test::TestBatching::~TestBatching()
@@ -67,7 +68,8 @@ void test::TestBatching::OnUpdate(float deltaTime)
 	MouseMovement();
 	KeyboardMovement(deltaTime);
 	ChangeCursorLockState();
-
+	
+	ChunkManager::Get().UpdateChunks(Vector2::Int((std::floor(cam.m_Position.x / 16) + 2), (std::floor(cam.m_Position.z / 16) + 2)));
 
 	//std::cout << "(" << std::floorf(cam.m_Position.x) << ", " << std::floorf(cam.m_Position.y) << ", " << std::floorf(cam.m_Position.z) << ") ";
 	//std::cout <<"(" << std::floorf(cam.m_Position.x / (CHUNK_SIZE) + ChunkManager::Get().GetDimensions() / 2)<< ", " << std::floorf(cam.m_Position.z / (CHUNK_SIZE) +ChunkManager::Get().GetDimensions() / 2) <<  ")" << std::endl;
@@ -108,14 +110,16 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 		for (int chunkInstanceZ = 0; chunkInstanceZ < dimensions; chunkInstanceZ++) {
 			{
 				auto chunk = chunks[chunkInstanceX][chunkInstanceZ];
-				m_Model = glm::translate(glm::mat4(1.0f), glm::vec3((chunk->m_ChunkPosition.x - dimensions/2) * CHUNK_SIZE, 0.0f, (chunk->m_ChunkPosition.y - dimensions/2) * CHUNK_SIZE));
-				m_Mvp = m_Proj * cam.m_Mat4 * m_Model;
+				if (chunk != nullptr) {
+					m_Model = glm::translate(glm::mat4(1.0f), glm::vec3((chunk->m_ChunkWorldPosition.x - dimensions / 2) * CHUNK_SIZE, 0.0f, (chunk->m_ChunkWorldPosition.y - dimensions / 2) * CHUNK_SIZE));
+					m_Mvp = m_Proj * cam.m_Mat4 * m_Model;
 
-				m_Shader.SetUniformMat4f("u_MVP", m_Mvp);
-				m_Renderer.Draw(chunk->m_Model.m_Va, chunk->m_Model.m_Ib, m_Shader);
+					m_Shader.SetUniformMat4f("u_MVP", m_Mvp);
+					m_Renderer.Draw(chunk->m_Model.m_Va, chunk->m_Model.m_Ib, m_Shader);
+				}
 			}
 		}
-	} 
+	}
 }
 
 void test::TestBatching::OnImGuiRender()
@@ -145,7 +149,7 @@ void test::TestBatching::MouseMovement()
 	rotationX += delta.x * cam.m_RotationSpeed;
 	rotationY -= delta.y * cam.m_RotationSpeed;
 	rotationY = std::clamp(rotationY, -89.9, 89.9);
-	
+
 	cam.Rotate(glm::vec3(rotationX, rotationY, 0));
 
 }
@@ -162,7 +166,7 @@ void test::TestBatching::KeyboardMovement(float deltaTime)
 	}
 	if (Input::IsKeyPressed(GLFW_KEY_D)) {
 		cam.m_Position += glm::normalize(glm::cross(cam.m_Direction, cam.m_Up)) * cam.m_MovementSpeed * deltaTime;
-	} 
+	}
 }
 
 void test::TestBatching::ChangeCursorLockState()

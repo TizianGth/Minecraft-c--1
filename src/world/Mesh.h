@@ -8,5 +8,5 @@
 struct Mesh {
 public:
 	std::vector<float> vertices;
-	std::vector<int> indices;
+	std::vector<unsigned int> indices;
 };

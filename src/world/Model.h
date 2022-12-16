@@ -6,6 +6,9 @@
 
 class Model {
 public:
+	Model() {};
+	~Model() = default;
+
 	Mesh m_Mesh;
 	VertexBuffer m_Vb;
 	IndexBuffer m_Ib;

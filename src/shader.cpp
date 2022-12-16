@@ -119,13 +119,10 @@ unsigned int Shader::GetUniformLocation(const std::string& name)
 
     if (location == -1) {
         // TODO: WARN
-        std::cout << "Wan" << std::endl;
     }
     else {
         m_UniformLocationCache[name] = location;
     }
-
-    std::cout << "location " << location << " Name " << name << std::endl;
     return location;
 }
 
