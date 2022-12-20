@@ -71,7 +71,7 @@ int main(void)
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
-    glfwWindowHint(GLFW_SAMPLES, 2);
+    //glfwWindowHint(GLFW_SAMPLES, 2);
     window = glfwCreateWindow(ScreenWidth, ScreenHeight, "C++", NULL, NULL);
     if (!window)
     {
@@ -88,7 +88,7 @@ int main(void)
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1.0f);
     
-    glEnable(GL_MULTISAMPLE);
+    //glEnable(GL_MULTISAMPLE);
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     ImGui::CreateContext();

@@ -51,6 +51,14 @@ namespace Vector2 {
 			return first;
 		}
 
+		friend bool operator==(const Int& first, const Int& second) {
+			return (first.x == second.x && first.y == second.y);
+		}
+
+		friend bool operator!=(const Int& first, const Int& second) {
+			return !(first == second);
+		}
+
 		int x = 0;
 		int y = 0;
 	};

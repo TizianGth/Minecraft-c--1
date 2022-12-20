@@ -18,6 +18,7 @@ public:
 	void GenerateMeshes();
 	void FillUpTest();
 	void SetChunkPosition(Vector2::Int chunkPosition, Vector2::Int chunkWorldPosition);
+	void Bind();
 public:
 	Model m_Model;
 	Vector2::Int m_ChunkPosition;

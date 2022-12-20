@@ -97,7 +97,7 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 	m_Mvp = m_Proj * cam.m_Mat4 * m_Model;
 
 	m_Skybox.Render(m_Mvp);
-	m_Renderer.Draw(m_Skybox.m_Model.m_Va, m_Skybox.m_Model.m_Ib, m_Skybox.m_Shader);
+	m_Renderer.Draw(*m_Skybox.m_Model.m_Va, *m_Skybox.m_Model.m_Ib, m_Skybox.m_Shader);
 
 	m_Shader.Bind();
 	m_Shader.SetUniform4f("u_Color", glm::vec4(m_Color[0], m_Color[1], m_Color[2], m_Color[3]));
@@ -110,12 +110,12 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 		for (int chunkInstanceZ = 0; chunkInstanceZ < dimensions; chunkInstanceZ++) {
 			{
 				auto chunk = chunks[chunkInstanceX][chunkInstanceZ];
-				if (chunk != nullptr) {
+				if (chunk != nullptr && chunk->m_Model.isValid()) {
 					m_Model = glm::translate(glm::mat4(1.0f), glm::vec3((chunk->m_ChunkWorldPosition.x - dimensions / 2) * CHUNK_SIZE, 0.0f, (chunk->m_ChunkWorldPosition.y - dimensions / 2) * CHUNK_SIZE));
 					m_Mvp = m_Proj * cam.m_Mat4 * m_Model;
 
 					m_Shader.SetUniformMat4f("u_MVP", m_Mvp);
-					m_Renderer.Draw(chunk->m_Model.m_Va, chunk->m_Model.m_Ib, m_Shader);
+					m_Renderer.Draw(*chunk->m_Model.m_Va, *chunk->m_Model.m_Ib, m_Shader);
 				}
 			}
 		}

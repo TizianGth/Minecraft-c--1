@@ -1,4 +1,6 @@
 #include "ChunkManager.h"
+#include "ThreadManager.h"
+#include <ppl.h>
 
 ChunkManager ChunkManager::s_Instance;
 
@@ -13,14 +15,12 @@ ChunkManager::ChunkManager()
 
 void ChunkManager::GenerateChunk(Vector2::Int chunkPosition, Vector2::Int chunkWorldPosition)
 {
-	if (m_Chunks[chunkPosition.x][chunkPosition.y] != nullptr) {
-		// TODO: i need to delete this chunk, but keeps throwing error
-		m_GarbageChunks.push_back(m_Chunks[chunkPosition.x][chunkPosition.y]);
-	}
-	m_Chunks[chunkPosition.x][chunkPosition.y] = new Chunk;
-	m_Chunks[chunkPosition.x][chunkPosition.y]->SetChunkPosition(Vector2::Int(chunkPosition.x, chunkPosition.y), Vector2::Int(chunkWorldPosition.x, chunkWorldPosition.y));
-	m_Chunks[chunkPosition.x][chunkPosition.y]->Generate();
-	m_Chunks[chunkPosition.x][chunkPosition.y]->FillUpTest();
+	m_Chunks[chunkPosition.x][chunkPosition.y] = nullptr;
+	Chunk* newChunk = new Chunk;
+	newChunk->SetChunkPosition(Vector2::Int(chunkPosition.x, chunkPosition.y), Vector2::Int(chunkWorldPosition.x, chunkWorldPosition.y));
+	newChunk->Generate();
+	newChunk->FillUpTest();
+	m_Chunks[chunkPosition.x][chunkPosition.y] = newChunk;
 
 }
 
@@ -44,6 +44,7 @@ void ChunkManager::GenerateChunks()
 	for (int z = 0; z < ChunkDimensions; z++) {
 		for (int x = 0; x < ChunkDimensions; x++) {
 			m_Chunks[x][z]->GenerateMeshes();
+			m_Chunks[x][z]->Bind();
 		}
 	}
 }
@@ -51,6 +52,9 @@ void ChunkManager::GenerateChunks()
 void ChunkManager::UpdateChunks(Vector2::Int playerChunk)
 {
 
+	//
+	// TODO: Load 1 block in direction to avoid faces being empty
+	//
 	int ChunkChangeX = playerChunk.x - m_ActivLastChunk.x;
 	int ChunkChangeZ = playerChunk.y - m_ActivLastChunk.y;
 	int ChunkDimensions = GetDimensions();
@@ -59,22 +63,34 @@ void ChunkManager::UpdateChunks(Vector2::Int playerChunk)
 	if (ChunkChangeX > 0) {
 		// Delete chunks
 		for (int z = 0; z < ChunkDimensions; z++) {
-			delete m_Chunks[0][z];
+			Chunk* oldChunk = m_Chunks[0][z];
 			m_Chunks[0][z] = nullptr;
+			delete oldChunk;
 		}
 		// Shift chunks to delete chunks place
 		for (int x = 0; x < ChunkDimensions - 1; x++) {
 			m_Chunks[x] = m_Chunks[x + 1];
 		}
-		// Generate new chunks
+
+		//std::cout << "Making Chunk.." << std::endl;
+		// Generate new chunks+
 		for (int z = 0; z < ChunkDimensions; z++) {
 			Vector2::Int chunk(ChunkDimensions - 1, z);
 			GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
 		}
-		for (int z = 0; z < ChunkDimensions; z++) {
+
+		//std::cout << "Generating Mesh.." << std::endl;
+
+		concurrency::parallel_for(int(0), ChunkDimensions, [&](int z) {
 			Vector2::Int chunk(ChunkDimensions - 1, z);
 			m_Chunks[chunk.x][chunk.y]->GenerateMeshes();
+		});
+
+		for (int z = 0; z < ChunkDimensions; z++) {
+			m_Chunks[ChunkDimensions - 1][z]->Bind();
 		}
+
+		//std::cout << "Finished!" << std::endl;
 	}
 
 	else if (ChunkChangeX < 0) {
@@ -92,9 +108,14 @@ void ChunkManager::UpdateChunks(Vector2::Int playerChunk)
 			Vector2::Int chunk(0, z);
 			GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
 		}
-		for (int z = 0; z < ChunkDimensions; z++) {
+		concurrency::parallel_for(int(0), ChunkDimensions, [&](int z) {
 			Vector2::Int chunk(0, z);
 			m_Chunks[chunk.x][chunk.y]->GenerateMeshes();
+			});
+
+		for (int z = 0; z < ChunkDimensions; z++) {
+			Vector2::Int chunk(0, z);
+			m_Chunks[chunk.x][chunk.y]->Bind();
 		}
 	}
 
@@ -115,10 +136,15 @@ void ChunkManager::UpdateChunks(Vector2::Int playerChunk)
 			Vector2::Int chunk(x, ChunkDimensions - 1);
 			GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
 		}
-		for (int x = 0; x < ChunkDimensions; x++) {
+		concurrency::parallel_for(int(0), ChunkDimensions, [&](int x) {
 			Vector2::Int chunk(x, ChunkDimensions - 1);
 			m_Chunks[chunk.x][chunk.y]->GenerateMeshes();
-		} 
+		});
+
+		for (int x = 0; x < ChunkDimensions; x++) {
+			Vector2::Int chunk(x, ChunkDimensions - 1);
+			m_Chunks[chunk.x][chunk.y]->Bind();
+		}
 	}
 	else if (ChunkChangeZ < 0) {
 		// Delete chunks
@@ -137,22 +163,18 @@ void ChunkManager::UpdateChunks(Vector2::Int playerChunk)
 			Vector2::Int chunk(x, 0);
 			GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
 		}
-		for (int x = 0; x < ChunkDimensions; x++) {
+		concurrency::parallel_for(int(0), ChunkDimensions, [&](int x) {
 			Vector2::Int chunk(x, 0);
 			m_Chunks[chunk.x][chunk.y]->GenerateMeshes();
+			});
+
+		for (int x = 0; x < ChunkDimensions; x++) {
+			Vector2::Int chunk(x, 0);
+			m_Chunks[chunk.x][chunk.y]->Bind();
 		}
 	}
 
 	m_ActivLastChunk = playerChunk;
-
-	/*int size = m_GarbageChunks.size();
-	for (int i = 0; i < size; i++) {
-		if (m_GarbageChunks[i] == nullptr) { continue; }
-		if (size > ChunkDimensions * ChunkDimensions) {
-			delete m_GarbageChunks[i];
-			m_GarbageChunks[i] = nullptr;
-		}
-	} */
 }
 
 const int ChunkManager::GetDimensions()

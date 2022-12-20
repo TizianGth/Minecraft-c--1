@@ -39,6 +39,7 @@ Skybox::Skybox() : m_Shader("res/shaders/basic.shader")
 	
 	mesh.indices = indices;
 	m_Model.Set(mesh);
+	m_Model.addLayout();
 	m_Model.addVB();
 	m_Model.addIB();
 	m_Model.addVA();

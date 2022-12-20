@@ -3,6 +3,7 @@
 #include <chrono>
 #include "ChunkManager.h"
 #include <algorithm>
+#include <ppl.h>
 
 //TODO: CHUNK AND WORLD POSITION CONVERSION
 Chunk::Chunk()
@@ -14,20 +15,21 @@ Chunk::~Chunk()
 
 }
 
+
 std::vector<float> Chunk::ConvertPositionToVertices(glm::vec3 position, int materialID) {
 	int x = position.x;
 	int y = position.y;
 	int z = position.z;
 	std::vector<float> result = {
-		(float) x		, (float) y			, (float)(z + 1)	, -1, -1,  1, (float)materialID,
-		(float)(x + 1)	, (float) y			, (float)(z + 1)	,  1, -1,  1, (float)materialID,
+		(float)x		, (float)y			, (float)(z + 1)	, -1, -1,  1, (float)materialID,
+		(float)(x + 1)	, (float)y			, (float)(z + 1)	,  1, -1,  1, (float)materialID,
 		(float)(x + 1)	, (float)(y + 1)	, (float)(z + 1)	,  1,  1,  1, (float)materialID,
-		(float) x		, (float)(y + 1)	, (float)(z + 1)	, -1,  1,  1, (float)materialID,
-		(float)			  (float)			  (float)						  (float)
-		(float) x		, (float) y			, (float) z			, -1, -1, -1, (float)materialID,
-	    (float)(x + 1)	, (float) y			, (float) z			,  1, -1, -1, (float)materialID,
-	    (float)(x + 1)	, (float)(y + 1)	, (float) z			,  1,  1, -1, (float)materialID,
-		(float) x		, (float)(y + 1)	, (float) z			, -1,  1, -1, (float)materialID
+		(float)x		, (float)(y + 1)	, (float)(z + 1)	, -1,  1,  1, (float)materialID,
+		(float)(float)(float)(float)
+		(float)x		, (float)y			, (float)z			, -1, -1, -1, (float)materialID,
+		(float)(x + 1)	, (float)y			, (float)z			,  1, -1, -1, (float)materialID,
+		(float)(x + 1)	, (float)(y + 1)	, (float)z			,  1,  1, -1, (float)materialID,
+		(float)x		, (float)(y + 1)	, (float)z			, -1,  1, -1, (float)materialID
 	};
 
 	return result;
@@ -98,9 +100,9 @@ void Chunk::FillUpTest()
 	// TODO: debug why if face touches other chunk sometimes itll still get rendered
 	glm::vec3 position = glm::vec3(0, 0, 0);
 
-	 siv::PerlinNoise::seed_type seed = 223456u;
+	siv::PerlinNoise::seed_type seed = 223456u;
 
-	 siv::PerlinNoise perlin{ seed };
+	siv::PerlinNoise perlin{ seed };
 
 	for (int x = 0; x < 16; x++) {
 		for (int z = 0; z < 16; z++) {
@@ -121,6 +123,16 @@ void Chunk::SetChunkPosition(Vector2::Int chunkPosition, Vector2::Int chunkWorld
 {
 	m_ChunkPosition = chunkPosition;
 	m_ChunkWorldPosition = chunkWorldPosition;
+	//m_Model = Model();
+
+}
+
+void Chunk::Bind()
+{
+	m_Model.addLayout();
+	m_Model.addVB();
+	m_Model.addIB();
+	m_Model.addVA();
 }
 
 
@@ -129,6 +141,7 @@ void Chunk::SetChunkPosition(Vector2::Int chunkPosition, Vector2::Int chunkWorld
 /// </summary>
 void Chunk::Generate()
 {
+
 	// 1. fill first row  (x,0,0) and keep track when finished then currentZLevel += 1, then when both finished currentYLevel += 1;
 	int progressToNextZ = 0;    // same as x
 	int progressToNextY = 0;
@@ -166,7 +179,6 @@ void Chunk::GenerateMeshes()
 {
 	Mesh mesh;
 
-	// Accounts for Air blocks, because they shouldnt be counted to index
 	int minus = 0;
 
 	for (int i = 0; i < CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT; i++) {
@@ -178,18 +190,18 @@ void Chunk::GenerateMeshes()
 		int materialID = m_blocks[i];
 		Faces faces = GetNeighbouringBlocks(position);
 
-		if (faces.Count() == 6) continue;
+		if (faces.Count() == 6) { continue; }
 
 		std::vector<float> newVertices = ConvertPositionToVertices(position, materialID);
+
 		int newVerticesLength = newVertices.size();
 
 		mesh.vertices.reserve(newVerticesLength);
-
 		for (int v = 0; v < newVerticesLength; v++) {
 			mesh.vertices.emplace_back(newVertices[v]);
 		}
 
-		std::vector<int> newIndices = ConvertPositionToIndex(i - minus, faces);
+		std::vector<int> newIndices = ConvertPositionToIndex(i - minus , faces);
 		int newIndicesLength = newIndices.size();
 
 		mesh.indices.reserve(newIndicesLength);
@@ -197,12 +209,10 @@ void Chunk::GenerateMeshes()
 		for (int v = 0; v < newIndicesLength; v++) {
 			mesh.indices.emplace_back(newIndices[v]);
 		}
+		//mutex.unlock();
 	}
 
 	m_Model.Set(mesh);
-	m_Model.addVB();
-	m_Model.addIB();
-	m_Model.addVA();
 
 }
 
@@ -298,6 +308,6 @@ const int Chunk::GetBlock(glm::vec3 position)
 {
 	int index = GetIndex(position);
 	int id = m_blocks[index];
-	
+
 	return id;
 }
