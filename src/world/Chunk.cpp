@@ -104,26 +104,61 @@ void Chunk::FillUpTest()
 
 	siv::PerlinNoise perlin{ seed };
 
+	int noise = 0;
+	int x;
+	int z;
+
 	for (int x = 0; x < 16; x++) {
 		for (int z = 0; z < 16; z++) {
-			int noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 8) + 1;
+			noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 8) + 1;
 			//std::cout << noise << std::endl;
 			for (int y = 0; y < noise; y++) {
-				position = glm::vec3(x, y, z);
-				m_blocks[GetIndex(position)] = 1;
 
 				position = glm::vec3(x, y, z);
-				m_blocks[GetIndex(position)] = 2;
+				m_Blocks[GetIndex(position)] = 1;
+
+				position = glm::vec3(x, y, z);
+				m_Blocks[GetIndex(position)] = 2;
+
 			}
 		}
 	}
+
+	noise = 0;
+
+	for (int edge = 0; edge < 4; edge++) {
+		for (int index = 0; index < CHUNK_SIZE; index++) {
+
+			if (edge == 0) {
+				x = index;
+				z = 16;
+			}
+			else if (edge == 1) {
+				z = index;
+				x = 16;
+			}
+			else if(edge == 2) {
+				x = index;
+				z = -1;
+			}
+			else if(edge == 3) {
+				z = index;
+				x = -1;
+			}
+
+			noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 8) + 1;
+				for (int y = 0; y < noise; y++) {
+					m_BlocksEdge[edge][index][y] = 1;
+				}
+		}
+	} 
+
 }
 
 void Chunk::SetChunkPosition(Vector2::Int chunkPosition, Vector2::Int chunkWorldPosition)
 {
 	m_ChunkPosition = chunkPosition;
 	m_ChunkWorldPosition = chunkWorldPosition;
-	//m_Model = Model();
 
 }
 
@@ -150,7 +185,7 @@ void Chunk::Generate()
 
 	// this is the data that will be saved in the end
 	for (int i = 0; i < CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT; i++) {
-		m_blocks[i] = 0;
+		m_Blocks[i] = 0;
 
 		Vector3::UnsignedChar position(progressToNextZ, currentYLevel, currentZLevel);
 		m_localBlockPositions[i] = position;
@@ -171,6 +206,13 @@ void Chunk::Generate()
 		}
 
 	}
+
+	for (int edge = 0; edge < 4; edge++) {
+		for (int index = 0; index < CHUNK_SIZE; index++) {
+			for (int height = 0; height < CHUNK_HEIGHT; height++) {
+			}
+		}
+	}
 }
 
 
@@ -182,12 +224,12 @@ void Chunk::GenerateMeshes()
 	int minus = 0;
 
 	for (int i = 0; i < CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT; i++) {
-		if (m_blocks[i] == 0) {
+		if (m_Blocks[i] == 0) {
 			minus++;
 			continue;
 		}
 		glm::vec3 position = glm::vec3(m_localBlockPositions[i].x, m_localBlockPositions[i].y, m_localBlockPositions[i].z);
-		int materialID = m_blocks[i];
+		int materialID = m_Blocks[i];
 		Faces faces = GetNeighbouringBlocks(position);
 
 		if (faces.Count() == 6) { continue; }
@@ -201,7 +243,7 @@ void Chunk::GenerateMeshes()
 			mesh.vertices.emplace_back(newVertices[v]);
 		}
 
-		std::vector<int> newIndices = ConvertPositionToIndex(i - minus , faces);
+		std::vector<int> newIndices = ConvertPositionToIndex(i - minus, faces);
 		int newIndicesLength = newIndices.size();
 
 		mesh.indices.reserve(newIndicesLength);
@@ -216,85 +258,46 @@ void Chunk::GenerateMeshes()
 
 }
 
-
-/// <summary>
-/// creates "seams" on chunks, to remove them youd need a global block buffer or check sorounding chunks. 
-/// Can be important when y is getting greater. Not worth it atm
-/// </summary>
-
 Faces Chunk::GetNeighbouringBlocks(glm::vec3 position)
 {
 	Faces localFaces;
 
 	glm::vec3 offsetPosition = position + glm::vec3(1, 0, 0);
-	int block = GetBlockFromOtherChunk(offsetPosition);
+	int block = GetBlock(offsetPosition);
 	if (block == 0) {
 		localFaces.faces[localFaces.right] = true;
 	}
 	offsetPosition = position + glm::vec3(-1, 0, 0);
-	block = GetBlockFromOtherChunk(offsetPosition);
+	block = GetBlock(offsetPosition);
 	if (block == 0) {
 		localFaces.faces[localFaces.left] = true;
 	}
 
 	offsetPosition = position + glm::vec3(0, 1, 0);
-	block = GetBlockFromOtherChunk(offsetPosition);
+	block = GetBlock(offsetPosition);
 	if (block == 0) {
 		localFaces.faces[localFaces.top] = true;
 	}
 
 	offsetPosition = position + glm::vec3(0, -1, 0);
-	block = GetBlockFromOtherChunk(offsetPosition);
+	block = GetBlock(offsetPosition);
 	if (block == 0) {
 		localFaces.faces[localFaces.bottom] = true;
 	}
 
 	offsetPosition = position + glm::vec3(0, 0, -1);
-	block = GetBlockFromOtherChunk(offsetPosition);
+	block = GetBlock(offsetPosition);
 	if (block == 0) {
 		localFaces.faces[localFaces.back] = true;
 	}
 
 	offsetPosition = position + glm::vec3(0, 0, 1);
-	block = GetBlockFromOtherChunk(offsetPosition);
+	block = GetBlock(offsetPosition);
 	if (block == 0) {
 		localFaces.faces[localFaces.front] = true;
 	}
 
 	return localFaces;
-}
-
-const int Chunk::GetBlockFromOtherChunk(glm::vec3 position)
-{
-	if (position.y >= CHUNK_HEIGHT || position.y < 0) return 0; // return "air block" when at max y build limit 
-	int desiredChunkX = m_ChunkPosition.x;
-	int desiredChunkZ = m_ChunkPosition.y;
-	glm::vec3 inChunkPosition = glm::vec3(position.x, position.y, position.z);
-	if (position.x >= CHUNK_SIZE) {
-		desiredChunkX = m_ChunkPosition.x + 1;
-		inChunkPosition.x = position.x - CHUNK_SIZE;
-	}
-	else if (position.x < 0) {
-		desiredChunkX = m_ChunkPosition.x - 1;
-		inChunkPosition.x = CHUNK_SIZE + position.x;
-	}
-	if (position.z >= CHUNK_SIZE) {
-		desiredChunkZ = m_ChunkPosition.y + 1;
-		inChunkPosition.z = position.z - CHUNK_SIZE;
-	}
-	else if (position.z < 0) {
-		desiredChunkZ = m_ChunkPosition.y - 1;
-		inChunkPosition.z = CHUNK_SIZE + position.z;;
-	}
-
-	if (desiredChunkX < 0 || desiredChunkZ < 0 || desiredChunkX >= ChunkManager::Get().GetDimensions() || desiredChunkZ >= ChunkManager::Get().GetDimensions()) {
-		return -1;
-	}
-	if (desiredChunkX >= 0 && desiredChunkZ >= 0) {
-		auto ref = ChunkManager::Get();
-		int id = ref.GetChunksPointer()[desiredChunkX][desiredChunkZ]->GetBlock(inChunkPosition);
-		return id;
-	}
 }
 
 const int Chunk::GetIndex(glm::vec3 position)
@@ -306,8 +309,43 @@ const int Chunk::GetIndex(glm::vec3 position)
 
 const int Chunk::GetBlock(glm::vec3 position)
 {
-	int index = GetIndex(position);
-	int id = m_blocks[index];
+	if (position.y >= CHUNK_HEIGHT || position.y < 0) return 0;
+
+	unsigned int index = 0;
+	int edge = -1;
+	int edgeZ = 0;
+	if (position.x <= -1) {
+		index = position.z;
+		edge = 3;
+	}
+	else if (position.x >= CHUNK_SIZE) {
+		index = position.z;
+		edge = 1;
+	}
+	else if (position.z <= -1) {
+		index = position.x;
+		edge = 2;
+	}
+	else if (position.z >= CHUNK_SIZE) {
+		index = position.x;
+		edge = 0;
+	}
+
+	if (edge != -1) {
+		unsigned char block = m_BlocksEdge[edge][index][(int)position.y];
+		if (block == 0) {
+			return block;
+		}
+	}
+
+	index = GetIndex(position);
+	if (index == -1) {
+		return -1;
+	}
+	int id = m_Blocks[index];
 
 	return id;
 }
+
+
+

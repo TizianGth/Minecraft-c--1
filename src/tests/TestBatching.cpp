@@ -68,11 +68,8 @@ void test::TestBatching::OnUpdate(float deltaTime)
 	MouseMovement();
 	KeyboardMovement(deltaTime);
 	ChangeCursorLockState();
-	
-	ChunkManager::Get().UpdateChunks(Vector2::Int((std::floor(cam.m_Position.x / 16) + 2), (std::floor(cam.m_Position.z / 16) + 2)));
 
-	//std::cout << "(" << std::floorf(cam.m_Position.x) << ", " << std::floorf(cam.m_Position.y) << ", " << std::floorf(cam.m_Position.z) << ") ";
-	//std::cout <<"(" << std::floorf(cam.m_Position.x / (CHUNK_SIZE) + ChunkManager::Get().GetDimensions() / 2)<< ", " << std::floorf(cam.m_Position.z / (CHUNK_SIZE) +ChunkManager::Get().GetDimensions() / 2) <<  ")" << std::endl;
+	ChunkManager::Get().UpdateChunks(Vector2::Int((std::floor(cam.m_Position.x / 16) + 2), (std::floor(cam.m_Position.z / 16) + 2)));
 }
 double rotationX = -90;
 double rotationY = -10;

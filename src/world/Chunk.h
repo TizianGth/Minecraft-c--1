@@ -5,6 +5,7 @@
 #include "Faces.h"
 #include "PerlinNoise.h"
 #include "vector.h"
+#include <array>
 
 const int CHUNK_SIZE = 16;
 const int CHUNK_HEIGHT = 256;
@@ -27,11 +28,12 @@ private:
 	std::vector<float> ConvertPositionToVertices(glm::vec3 position, int materialID);
 	std::vector<int> ConvertPositionToIndex(int blockCount, Faces faces);
 	Faces GetNeighbouringBlocks(glm::vec3 position);
-	const int GetBlockFromOtherChunk(glm::vec3 position);
 	const int GetIndex(glm::vec3 position);
 	const int GetBlock(glm::vec3 position);
 
 private:
-	unsigned char m_blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT];
+	unsigned char m_Blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT];
+	// TODO: maybe make this some kind of pointer and delete later, so it dosnt always store this data
+	unsigned char m_BlocksEdge[4][CHUNK_SIZE][CHUNK_HEIGHT]; // 0 = top (z + 1), 1 = right (x + 1), 2 = bottom (z=-1), 3 = left (x=-1)
 	Vector3::UnsignedChar m_localBlockPositions[CHUNK_SIZE * CHUNK_SIZE * CHUNK_HEIGHT];
 };

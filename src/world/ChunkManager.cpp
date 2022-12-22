@@ -84,7 +84,7 @@ void ChunkManager::UpdateChunks(Vector2::Int playerChunk)
 		concurrency::parallel_for(int(0), ChunkDimensions, [&](int z) {
 			Vector2::Int chunk(ChunkDimensions - 1, z);
 			m_Chunks[chunk.x][chunk.y]->GenerateMeshes();
-		});
+			});
 
 		for (int z = 0; z < ChunkDimensions; z++) {
 			m_Chunks[ChunkDimensions - 1][z]->Bind();
@@ -139,7 +139,7 @@ void ChunkManager::UpdateChunks(Vector2::Int playerChunk)
 		concurrency::parallel_for(int(0), ChunkDimensions, [&](int x) {
 			Vector2::Int chunk(x, ChunkDimensions - 1);
 			m_Chunks[chunk.x][chunk.y]->GenerateMeshes();
-		});
+			});
 
 		for (int x = 0; x < ChunkDimensions; x++) {
 			Vector2::Int chunk(x, ChunkDimensions - 1);
