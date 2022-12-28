@@ -16,7 +16,7 @@ public:
 	~Chunk();
 
 	void Generate();
-	void GenerateMeshes();
+	bool GenerateMeshes();
 	void FillUpTest();
 	void SetChunkPosition(Vector2::Int chunkPosition, Vector2::Int chunkWorldPosition);
 	void Bind();
@@ -24,9 +24,11 @@ public:
 	Model m_Model;
 	Vector2::Int m_ChunkPosition;
 	Vector2::Int m_ChunkWorldPosition;
+	bool m_ActiveChunk = false;
 private:
 	std::vector<float> ConvertPositionToVertices(glm::vec3 position, int materialID);
-	std::vector<int> ConvertPositionToIndex(int blockCount, Faces faces);
+	std::vector<unsigned char> GetVertexMaterialID(unsigned char materialID);
+	std::vector<unsigned int> ConvertPositionToIndex(int blockCount, Faces faces);
 	Faces GetNeighbouringBlocks(glm::vec3 position);
 	const int GetIndex(glm::vec3 position);
 	const int GetBlock(glm::vec3 position);

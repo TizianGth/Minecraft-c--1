@@ -15,6 +15,17 @@ Chunk::~Chunk()
 
 }
 
+std::vector<char> TextCoords = {
+	-1, -1,  1,
+	 1, -1,  1,
+	 1,  1,  1,
+	-1,  1,  1,
+
+	-1, -1, -1,
+	 1, -1, -1,
+	 1,  1, -1,
+	-1,  1, -1
+};
 
 std::vector<float> Chunk::ConvertPositionToVertices(glm::vec3 position, int materialID) {
 	int x = position.x;
@@ -35,7 +46,24 @@ std::vector<float> Chunk::ConvertPositionToVertices(glm::vec3 position, int mate
 	return result;
 }
 
-std::vector<int> Chunk::ConvertPositionToIndex(int blockCount, Faces faces)
+std::vector<unsigned char> Chunk::GetVertexMaterialID(unsigned char materialID)
+{
+	std::vector<unsigned char> result = {
+		materialID,
+		materialID,
+		materialID,
+		materialID,
+				  
+		materialID,
+		materialID,
+		materialID,
+		materialID
+	};
+
+	return result;
+}
+
+std::vector<unsigned int> Chunk::ConvertPositionToIndex(int blockCount, Faces faces)
 {
 	std::vector<int> frontIndices = {
 		// Front
@@ -69,7 +97,7 @@ std::vector<int> Chunk::ConvertPositionToIndex(int blockCount, Faces faces)
 	};
 
 
-	std::vector<int> result;
+	std::vector<unsigned int> result;
 	// result.reserve(faces.Count() * 6);
 
 	if (faces.faces[faces.front]) {
@@ -100,7 +128,7 @@ void Chunk::FillUpTest()
 	// TODO: debug why if face touches other chunk sometimes itll still get rendered
 	glm::vec3 position = glm::vec3(0, 0, 0);
 
-	siv::PerlinNoise::seed_type seed = 223456u;
+	siv::PerlinNoise::seed_type seed = 123456;
 
 	siv::PerlinNoise perlin{ seed };
 
@@ -110,7 +138,7 @@ void Chunk::FillUpTest()
 
 	for (int x = 0; x < 16; x++) {
 		for (int z = 0; z < 16; z++) {
-			noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 8) + 1;
+			noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 8) + 5;
 			//std::cout << noise << std::endl;
 			for (int y = 0; y < noise; y++) {
 
@@ -146,7 +174,7 @@ void Chunk::FillUpTest()
 				x = -1;
 			}
 
-			noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 8) + 1;
+			noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 8) + 5;
 				for (int y = 0; y < noise; y++) {
 					m_BlocksEdge[edge][index][y] = 1;
 				}
@@ -164,10 +192,7 @@ void Chunk::SetChunkPosition(Vector2::Int chunkPosition, Vector2::Int chunkWorld
 
 void Chunk::Bind()
 {
-	m_Model.addLayout();
-	m_Model.addVB();
-	m_Model.addIB();
-	m_Model.addVA();
+	m_Model.Bind();
 }
 
 
@@ -207,19 +232,14 @@ void Chunk::Generate()
 
 	}
 
-	for (int edge = 0; edge < 4; edge++) {
-		for (int index = 0; index < CHUNK_SIZE; index++) {
-			for (int height = 0; height < CHUNK_HEIGHT; height++) {
-			}
-		}
-	}
 }
 
 
 
-void Chunk::GenerateMeshes()
+bool Chunk::GenerateMeshes()
 {
-	Mesh mesh;
+
+	Mesh* mesh = new Mesh; // handle deletion in Model class
 
 	int minus = 0;
 
@@ -236,26 +256,24 @@ void Chunk::GenerateMeshes()
 
 		std::vector<float> newVertices = ConvertPositionToVertices(position, materialID);
 
+		// TODO: store textCoords and id not in floats
 		int newVerticesLength = newVertices.size();
-
-		mesh.vertices.reserve(newVerticesLength);
+		mesh->verticesPosition.reserve(newVerticesLength);
 		for (int v = 0; v < newVerticesLength; v++) {
-			mesh.vertices.emplace_back(newVertices[v]);
+			mesh->verticesPosition.emplace_back(newVertices[v]);
 		}
 
-		std::vector<int> newIndices = ConvertPositionToIndex(i - minus, faces);
+		std::vector<unsigned int> newIndices = ConvertPositionToIndex(i - minus, faces);
 		int newIndicesLength = newIndices.size();
 
-		mesh.indices.reserve(newIndicesLength);
+		mesh->indices.reserve(newIndicesLength);
 
 		for (int v = 0; v < newIndicesLength; v++) {
-			mesh.indices.emplace_back(newIndices[v]);
+			mesh->indices.emplace_back(newIndices[v]);
 		}
-		//mutex.unlock();
 	}
-
-	m_Model.Set(mesh);
-
+	m_Model.Set(mesh, m_ActiveChunk);
+	return true;
 }
 
 Faces Chunk::GetNeighbouringBlocks(glm::vec3 position)

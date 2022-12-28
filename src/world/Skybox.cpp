@@ -35,10 +35,10 @@ Skybox::Skybox() : m_Shader("res/shaders/basic.shader")
 		4,1,0 
 	};
 	Mesh mesh;
-	mesh.vertices = vertices;
+	mesh.verticesPosition = vertices;
 	
 	mesh.indices = indices;
-	m_Model.Set(mesh);
+	m_Model.Set(&mesh, false);
 	m_Model.addLayout();
 	m_Model.addVB();
 	m_Model.addIB();

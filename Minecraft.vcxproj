@@ -314,6 +314,7 @@
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Input.h" />
     <ClInclude Include="src\noise\PerlinNoise.h" />
+    <ClInclude Include="src\threading\Thread.h" />
     <ClInclude Include="src\threading\ThreadManager.h" />
     <ClInclude Include="src\world\Camera.h" />
     <ClInclude Include="src\world\ChunkManager.h" />

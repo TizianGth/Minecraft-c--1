@@ -7,6 +7,7 @@
 #include <iostream>
 #include "GLFW/glfw3.h"
 #include "Application.h"
+#include "ThreadManager.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -70,6 +71,7 @@ void test::TestBatching::OnUpdate(float deltaTime)
 	ChangeCursorLockState();
 
 	ChunkManager::Get().UpdateChunks(Vector2::Int((std::floor(cam.m_Position.x / 16) + 2), (std::floor(cam.m_Position.z / 16) + 2)));
+	ThreadManager::Get().CheckForUpdates();
 }
 double rotationX = -90;
 double rotationY = -10;
@@ -78,7 +80,7 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 {
 	m_Renderer.Clear();
 
-	auto& chunks = ChunkManager::Get().GetChunksPointer();
+	auto chunks = ChunkManager::Get().GetChunksPointer();
 
 	/*
 	1. Make 1 Big VA, BV, etc for each chunk and only change when needed
@@ -91,6 +93,7 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 		0.2f, 1000.0f);
 
 	m_Model = glm::translate(glm::mat4(1.0f), cam.m_Position);
+	//m_Model = glm::scale(m_Model, glm::vec3(12.43796f, 12.43796f, 12.43796f)); Would need to do this when using short
 	m_Mvp = m_Proj * cam.m_Mat4 * m_Model;
 
 	m_Skybox.Render(m_Mvp);
@@ -109,6 +112,7 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 				auto chunk = chunks[chunkInstanceX][chunkInstanceZ];
 				if (chunk != nullptr && chunk->m_Model.isValid()) {
 					m_Model = glm::translate(glm::mat4(1.0f), glm::vec3((chunk->m_ChunkWorldPosition.x - dimensions / 2) * CHUNK_SIZE, 0.0f, (chunk->m_ChunkWorldPosition.y - dimensions / 2) * CHUNK_SIZE));
+					//m_Model = glm::scale(m_Model, glm::vec3(12.43796f, 12.43796f, 12.43796f));
 					m_Mvp = m_Proj * cam.m_Mat4 * m_Model;
 
 					m_Shader.SetUniformMat4f("u_MVP", m_Mvp);
@@ -152,6 +156,8 @@ void test::TestBatching::MouseMovement()
 }
 void test::TestBatching::KeyboardMovement(float deltaTime)
 {
+	if (!cursorLocked) return;
+
 	if (Input::IsKeyPressed(GLFW_KEY_W)) {
 		cam.m_Position += cam.m_Direction * cam.m_MovementSpeed * deltaTime;
 	}

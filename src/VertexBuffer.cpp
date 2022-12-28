@@ -16,6 +16,7 @@ VertexBuffer::~VertexBuffer()
 
 void VertexBuffer::Bind() const
 {
+    if (this == nullptr) return;
     glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 }
 
@@ -29,3 +30,9 @@ void VertexBuffer::Set(const void* data, unsigned int size) const
     glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
     glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 }
+
+void VertexBuffer::Add(const void* data, unsigned int size) const
+{
+        glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+}
+

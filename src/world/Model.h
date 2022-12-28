@@ -9,17 +9,20 @@ public:
 	Model() {};
 	~Model();
 
-	Mesh m_Mesh;
-	VertexBuffer *m_Vb;
-	IndexBuffer *m_Ib;
-	VertexArray *m_Va;
-	VertexBufferLayout *m_Layout;
+	Mesh* m_Mesh;
+	VertexBuffer *m_Vb = nullptr;
+	IndexBuffer *m_Ib = nullptr;
+	VertexArray *m_Va = nullptr;
+	VertexBufferLayout *m_Layout = nullptr;
+
+	bool m_Active;
 
 	void addVB();
 	void addIB();
 	void addVA();
 	void addLayout();
-	void Set(Mesh &mesh);
+	void Bind();
+	void Set(Mesh* mesh, bool active);
 
 	bool isValid();
 };

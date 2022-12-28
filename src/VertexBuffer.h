@@ -13,4 +13,5 @@ public:
 	void Bind() const;
 	void Unbind() const;
 	void Set(const void *data, unsigned int size) const;
+	void Add(const void* data, unsigned int size) const;
 };

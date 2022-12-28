@@ -17,7 +17,7 @@ void main() {
 	v_TexCoord = texCoord;
 	v_MaterialID = materialID;
 
-	v_Fog = exp(-pow((length(gl_Position.xyz)*0.008f), 3.5f));
+	v_Fog = exp(-pow((length(gl_Position.xyz)*0.01f), 5.5f));
 	v_Fog = clamp(v_Fog, 0, 1);
 };
 
@@ -49,5 +49,5 @@ void main() {
 		color = layer;
 	}
 
-	color = mix(vec4(0.7f,0.82f,1,1), color, v_Fog);
+	color = mix(vec4(0.639f,0.776f,1,1), color, v_Fog);
 };

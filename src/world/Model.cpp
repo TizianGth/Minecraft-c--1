@@ -2,10 +2,11 @@
 
 Model::~Model()
 {
-    if(m_Vb != nullptr) delete m_Vb;
-    if (m_Ib != nullptr) delete m_Ib;
-    if (m_Va != nullptr) delete m_Va;
-    if (m_Layout != nullptr) delete m_Layout;
+    delete m_Vb;
+    delete m_Ib;
+    delete m_Va;
+    delete m_Layout;
+    delete m_Mesh;
 }
 
 void Model::addVB()
@@ -14,7 +15,7 @@ void Model::addVB()
         m_Vb = new VertexBuffer();
     }
 
-    m_Vb->Set(m_Mesh.vertices.data(), sizeof(float) * m_Mesh.vertices.size());
+    m_Vb->Set(m_Mesh->verticesPosition.data(), sizeof(float) * m_Mesh->verticesPosition.size());
 }
 
 void Model::addIB()
@@ -22,7 +23,7 @@ void Model::addIB()
     if (m_Ib == nullptr) {
         m_Ib = new IndexBuffer();
     }
-    m_Ib->Set(m_Mesh.indices.data(), m_Mesh.indices.size());
+    m_Ib->Set(m_Mesh->indices.data(), m_Mesh->indices.size());
 }
 
 void Model::addVA()
@@ -43,15 +44,26 @@ void Model::addLayout()
     m_Layout->Push<float>(1);
 }
 
+void Model::Bind()
+{
+    addLayout();
+    addVB();
+    addIB();
+    addVA();
 
-void Model::Set(Mesh& mesh)
+    if (!m_Active) { delete m_Mesh; m_Mesh = nullptr; }
+}
+
+
+void Model::Set(Mesh* mesh, bool active)
 {
     m_Mesh = mesh;
+    m_Active = active;
 }
 
 bool Model::isValid()
 {
-    return !(m_Layout == nullptr && m_Va == nullptr && m_Ib == nullptr && m_Vb == nullptr);
+    return m_Layout != nullptr && m_Va != nullptr && m_Ib != nullptr && m_Vb != nullptr;
 }
 
 
