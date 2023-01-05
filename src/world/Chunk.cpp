@@ -12,7 +12,9 @@ Chunk::Chunk()
 }
 Chunk::~Chunk()
 {
-
+	if (m_Model.m_Bound) return;
+	delete m_Mesh;
+	m_Model.m_Mesh = nullptr;
 }
 
 std::vector<char> TextCoords = {
@@ -138,7 +140,7 @@ void Chunk::FillUpTest()
 
 	for (int x = 0; x < 16; x++) {
 		for (int z = 0; z < 16; z++) {
-			noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 8) + 5;
+			noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 7) + 5;
 			//std::cout << noise << std::endl;
 			for (int y = 0; y < noise; y++) {
 
@@ -174,7 +176,7 @@ void Chunk::FillUpTest()
 				x = -1;
 			}
 
-			noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 8) + 5;
+			noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 7) + 5;
 				for (int y = 0; y < noise; y++) {
 					m_BlocksEdge[edge][index][y] = 1;
 				}
@@ -193,6 +195,16 @@ void Chunk::SetChunkPosition(Vector2::Int chunkPosition, Vector2::Int chunkWorld
 void Chunk::Bind()
 {
 	m_Model.Bind();
+	m_Render = true;
+}
+
+bool Chunk::GenerateChunk(Vector2::Int chunkPosition, Vector2::Int chunkWorldPosition)
+{
+	SetChunkPosition(chunkPosition, chunkWorldPosition);
+	Generate();
+	FillUpTest();
+	GenerateMeshes();
+	return true;
 }
 
 
@@ -232,14 +244,22 @@ void Chunk::Generate()
 
 	}
 
+	for (int first = 0; first < 4; first++) {
+		for (int second = 0; second < CHUNK_SIZE; second++) {
+			for (int third = 0; third < CHUNK_HEIGHT; third++) {
+				m_BlocksEdge[first][second][third] = 0;
+			}
+		}
+	}
+
 }
 
 
 
 bool Chunk::GenerateMeshes()
 {
-
-	Mesh* mesh = new Mesh; // handle deletion in Model class
+	
+	m_Mesh = new Mesh; // handle deletion in Model class
 
 	int minus = 0;
 
@@ -258,21 +278,22 @@ bool Chunk::GenerateMeshes()
 
 		// TODO: store textCoords and id not in floats
 		int newVerticesLength = newVertices.size();
-		mesh->verticesPosition.reserve(newVerticesLength);
+		m_Mesh->verticesPosition.reserve(newVerticesLength);
 		for (int v = 0; v < newVerticesLength; v++) {
-			mesh->verticesPosition.emplace_back(newVertices[v]);
+			m_Mesh->verticesPosition.emplace_back(newVertices[v]);
 		}
 
 		std::vector<unsigned int> newIndices = ConvertPositionToIndex(i - minus, faces);
 		int newIndicesLength = newIndices.size();
 
-		mesh->indices.reserve(newIndicesLength);
+		m_Mesh->indices.reserve(newIndicesLength);
 
 		for (int v = 0; v < newIndicesLength; v++) {
-			mesh->indices.emplace_back(newIndices[v]);
+			m_Mesh->indices.emplace_back(newIndices[v]);
 		}
 	}
-	m_Model.Set(mesh, m_ActiveChunk);
+	m_Model.Set(m_Mesh, false);
+
 	return true;
 }
 

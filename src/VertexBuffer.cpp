@@ -16,7 +16,6 @@ VertexBuffer::~VertexBuffer()
 
 void VertexBuffer::Bind() const
 {
-    if (this == nullptr) return;
     glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 }
 

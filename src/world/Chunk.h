@@ -20,11 +20,16 @@ public:
 	void FillUpTest();
 	void SetChunkPosition(Vector2::Int chunkPosition, Vector2::Int chunkWorldPosition);
 	void Bind();
+
+	bool GenerateChunk(Vector2::Int chunkPosition, Vector2::Int chunkWorldPosition);
 public:
 	Model m_Model;
+	Mesh* m_Mesh;
 	Vector2::Int m_ChunkPosition;
 	Vector2::Int m_ChunkWorldPosition;
+
 	bool m_ActiveChunk = false;
+	bool m_Render = false;
 private:
 	std::vector<float> ConvertPositionToVertices(glm::vec3 position, int materialID);
 	std::vector<unsigned char> GetVertexMaterialID(unsigned char materialID);

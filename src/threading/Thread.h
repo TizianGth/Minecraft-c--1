@@ -12,7 +12,7 @@ public:
 	};
 
 
-	int m_Id = 0;
+	unsigned int m_Id = -1;
 	std::shared_future<bool> m_Finished;
 	private:
 	 

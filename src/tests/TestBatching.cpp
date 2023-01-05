@@ -61,7 +61,7 @@ test::TestBatching::~TestBatching()
 }
 
 bool cursorLocked = true;
-void test::TestBatching::OnUpdate(float deltaTime)
+void test::TestBatching::OnUpdate(double deltaTime)
 {
 	if (applWindow == nullptr) {
 		applWindow = Application::GetWindow();
@@ -71,7 +71,8 @@ void test::TestBatching::OnUpdate(float deltaTime)
 	ChangeCursorLockState();
 
 	ChunkManager::Get().UpdateChunks(Vector2::Int((std::floor(cam.m_Position.x / 16) + 2), (std::floor(cam.m_Position.z / 16) + 2)));
-	ThreadManager::Get().CheckForUpdates();
+
+	ThreadManager::Get().UpdateOnMainThread();
 }
 double rotationX = -90;
 double rotationY = -10;
@@ -80,7 +81,7 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 {
 	m_Renderer.Clear();
 
-	auto chunks = ChunkManager::Get().GetChunksPointer();
+	std::vector<std::vector<std::shared_ptr<Chunk>>>& chunks = *ChunkManager::Get().GetChunksPointer();
 
 	/*
 	1. Make 1 Big VA, BV, etc for each chunk and only change when needed
@@ -109,8 +110,8 @@ void test::TestBatching::OnRender(int screenWidth, int screenHeight)
 	for (int chunkInstanceX = 0; chunkInstanceX < dimensions; chunkInstanceX++) {
 		for (int chunkInstanceZ = 0; chunkInstanceZ < dimensions; chunkInstanceZ++) {
 			{
-				auto chunk = chunks[chunkInstanceX][chunkInstanceZ];
-				if (chunk != nullptr && chunk->m_Model.isValid()) {
+				if (chunks.at(chunkInstanceX).at(chunkInstanceZ) != nullptr && chunks.at(chunkInstanceX).at(chunkInstanceZ)->m_Render && chunks.at(chunkInstanceX).at(chunkInstanceZ)->m_Model.isValid()) {
+					auto chunk = chunks.at(chunkInstanceX).at(chunkInstanceZ);
 					m_Model = glm::translate(glm::mat4(1.0f), glm::vec3((chunk->m_ChunkWorldPosition.x - dimensions / 2) * CHUNK_SIZE, 0.0f, (chunk->m_ChunkWorldPosition.y - dimensions / 2) * CHUNK_SIZE));
 					//m_Model = glm::scale(m_Model, glm::vec3(12.43796f, 12.43796f, 12.43796f));
 					m_Mvp = m_Proj * cam.m_Mat4 * m_Model;
@@ -154,21 +155,22 @@ void test::TestBatching::MouseMovement()
 	cam.Rotate(glm::vec3(rotationX, rotationY, 0));
 
 }
-void test::TestBatching::KeyboardMovement(float deltaTime)
+void test::TestBatching::KeyboardMovement(double deltaTime)
 {
 	if (!cursorLocked) return;
+	float speed = cam.m_MovementSpeed * deltaTime;
 
 	if (Input::IsKeyPressed(GLFW_KEY_W)) {
-		cam.m_Position += cam.m_Direction * cam.m_MovementSpeed * deltaTime;
+		cam.m_Position += cam.m_Direction * speed;
 	}
 	if (Input::IsKeyPressed(GLFW_KEY_S)) {
-		cam.m_Position -= cam.m_Direction * cam.m_MovementSpeed * deltaTime;
+		cam.m_Position -= cam.m_Direction * speed;
 	}
 	if (Input::IsKeyPressed(GLFW_KEY_A)) {
-		cam.m_Position -= glm::normalize(glm::cross(cam.m_Direction, cam.m_Up)) * cam.m_MovementSpeed * deltaTime;
+		cam.m_Position -= glm::normalize(glm::cross(cam.m_Direction, cam.m_Up)) * speed;
 	}
 	if (Input::IsKeyPressed(GLFW_KEY_D)) {
-		cam.m_Position += glm::normalize(glm::cross(cam.m_Direction, cam.m_Up)) * cam.m_MovementSpeed * deltaTime;
+		cam.m_Position += glm::normalize(glm::cross(cam.m_Direction, cam.m_Up)) * speed;
 	}
 }
 

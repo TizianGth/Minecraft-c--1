@@ -6,16 +6,17 @@
 
 class Model {
 public:
-	Model() {};
+	inline Model() { m_Bound = false; };
 	~Model();
 
-	Mesh* m_Mesh;
+	Mesh* m_Mesh = nullptr;
 	VertexBuffer *m_Vb = nullptr;
 	IndexBuffer *m_Ib = nullptr;
 	VertexArray *m_Va = nullptr;
 	VertexBufferLayout *m_Layout = nullptr;
 
 	bool m_Active;
+	bool m_Bound = false;
 
 	void addVB();
 	void addIB();

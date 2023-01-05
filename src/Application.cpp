@@ -38,7 +38,7 @@ auto previousTime = std::chrono::high_resolution_clock::now();
 void Draw() {
     if (test1 != nullptr) {
         currentTime = std::chrono::high_resolution_clock::now();
-        elapsed_time_ms = std::chrono::duration<float, std::milli>(currentTime - previousTime).count();
+        elapsed_time_ms = std::chrono::duration<double, std::milli>(currentTime - previousTime).count();
 
         test1->OnUpdate(elapsed_time_ms);
         test1->OnRender(ScreenWidth, ScreenHeight);

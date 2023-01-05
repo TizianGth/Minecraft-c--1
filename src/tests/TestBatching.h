@@ -12,7 +12,7 @@ namespace test {
 		TestBatching();
 		~TestBatching();
 
-		void OnUpdate(float deltaTime) override;
+		void OnUpdate(double deltaTime) override;
 		void OnRender(int screenWidth, int screenHeight);
 		void OnImGuiRender() override;
 
@@ -34,7 +34,7 @@ namespace test {
 		float m_Color[4] = { 0.65f,0.85f,0.35f,1 };
 
 		void MouseMovement();
-		void KeyboardMovement(float deltaTime);
+		void KeyboardMovement(double deltaTime);
 		void ChangeCursorLockState();
 	};
 }

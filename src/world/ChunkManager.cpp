@@ -14,6 +14,7 @@ ChunkManager::ChunkManager()
 {
 }
 
+
 void ChunkManager::SetNewActiveChunks(int ChunkChangeX, int ChunkChangeZ)
 {
 	if (ChunkChangeX != 0 && ChunkChangeZ != 0) {
@@ -30,9 +31,10 @@ void ChunkManager::SetNewActiveChunks(int ChunkChangeX, int ChunkChangeZ)
 	}
 }
 
-Chunk* ChunkManager::GenerateChunk(Vector2::Int chunkPosition, Vector2::Int chunkWorldPosition)
+std::shared_ptr<Chunk> ChunkManager::GenerateChunk(Vector2::Int chunkPosition, Vector2::Int chunkWorldPosition)
 {
-	Chunk* newChunk = new Chunk;
+	std::shared_ptr<Chunk> newChunk = std::make_shared<Chunk>();
+	newChunk->m_ActiveChunk = false;
 	newChunk->SetChunkPosition(Vector2::Int(chunkPosition.x, chunkPosition.y), Vector2::Int(chunkWorldPosition.x, chunkWorldPosition.y));
 	newChunk->Generate();
 	newChunk->FillUpTest();
@@ -52,118 +54,133 @@ void ChunkManager::GenerateChunks()
 	for (int x = 0; x < ChunkDimensions; x++) {
 		m_Chunks[x].resize(ChunkDimensions);
 		for (int z = 0; z < ChunkDimensions; z++) {
-			m_Chunks[x][z] = GenerateChunk(Vector2::Int(x, z), Vector2::Int(x, z));
-
-		}
-	}
-	for (int x = 0; x < ChunkDimensions; x++) {
-		for (int z = 0; z < ChunkDimensions; z++) {
-			SetNewActiveChunks(0, 0);
+			Vector2::Int position(x, z);
+			m_Chunks[x][z] = GenerateChunk(position, position);
 			m_Chunks[x][z]->GenerateMeshes();
 			m_Chunks[x][z]->Bind();
+
 		}
 	}
 }
-
+int ChunkChangeX = 0;
+int ChunkChangeZ = 0;
 void ChunkManager::UpdateChunks(Vector2::Int playerChunk)
 {
-	int ChunkChangeX = playerChunk.x - m_ActivLastChunk.x;
-	int ChunkChangeZ = playerChunk.y - m_ActivLastChunk.y;
+	ChunkChangeX += playerChunk.x - m_ActivLastChunk.x;
+	ChunkChangeZ += playerChunk.y - m_ActivLastChunk.y;
+	ChunkChangeZ = 0;
 	int ChunkDimensions = GetDimensions();
-	m_GlobalChunkOffset += Vector2::Int(ChunkChangeX, ChunkChangeZ);
+	
 
+	if (ChunkChangeX != 0) {
+		m_GlobalChunkOffset += Vector2::Int(ChunkChangeX, 0);
+	} else if (ChunkChangeZ != 0) {
+		m_GlobalChunkOffset += Vector2::Int(0, ChunkChangeZ);
+	}
+	else {
+		return;
+	}
+
+	auto t1 = std::chrono::high_resolution_clock::now();
 
 	if (ChunkChangeX > 0) {
-		SetNewActiveChunks(ChunkChangeX, ChunkChangeZ);
-		// Delete chunks
-		for (int z = 0; z < ChunkDimensions; z++) {
-			Chunk* oldChunk = m_Chunks[0][z];
-			m_Chunks[0][z] = nullptr;
-			delete oldChunk;
-		}
-		// Shift chunks to delete chunks place
-		std::cout << "1" << std::endl;
-		for (int x = 0; x < ChunkDimensions - 1; x++) {
-			m_Chunks[x] = m_Chunks[x + 1];
+		for (int edge = 0; edge < ChunkDimensions; edge++) {
+			m_Chunks[0][edge] = nullptr;
+
+			for (int shift = 0; shift < ChunkDimensions - 1; shift++) {
+				m_Chunks[shift][edge] = m_Chunks[shift + 1][edge];
+				m_Chunks[shift + 1][edge] = nullptr;
+
+			}
 		}
 
-		//std::cout << "Generating Mesh.." << std::endl;
-		std::cout << "3" << std::endl;
-		for (int z = 0; z < ChunkDimensions; z++) {
-			Vector2::Int chunk(ChunkDimensions - 1, z);
-			ThreadManager::Get().GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
-			//m_Chunks[chunk.x][chunk.y] = GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
-			//m_Chunks[chunk.x][chunk.y]->GenerateMeshes();
-			//m_Chunks[chunk.x][chunk.y]->Bind();
-		}
 	}
 
 	else if (ChunkChangeX < 0) {
-		SetNewActiveChunks(ChunkChangeX, ChunkChangeZ);
-		// Delete chunks
-		for (int z = 0; z < ChunkDimensions; z++) {
-			delete m_Chunks[ChunkDimensions - 1][z];
-			m_Chunks[ChunkDimensions - 1][z] = nullptr;
-		}
-		// Shift chunks to delete chunks place
-		for (int x = ChunkDimensions - 1; x > 0; x--) {
-			m_Chunks[x] = m_Chunks[x - 1];
-		}
-		// Generate new chunks
+		for (int edge = 0; edge < ChunkDimensions; edge++) {
+			m_Chunks[ChunkDimensions - 1][edge] = nullptr;
 
-		for (int z = 0; z < ChunkDimensions; z++) {
-			Vector2::Int chunk(0, z);
-			m_Chunks[chunk.x][chunk.y] = GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
-			m_Chunks[chunk.x][chunk.y]->GenerateMeshes();
-			m_Chunks[chunk.x][chunk.y]->Bind();
-		}
-	}
+			for (int shift = ChunkDimensions - 1; shift > 0; shift--) {
+				m_Chunks[shift][edge] = m_Chunks[shift - 1][edge];
+				m_Chunks[shift - 1][edge] = nullptr;
 
-	if (ChunkChangeZ > 0) {
-		SetNewActiveChunks(ChunkChangeX, ChunkChangeZ);
-		// Delete chunks
-		for (int x = 0; x < ChunkDimensions; x++) {
-			delete m_Chunks[x][0];
-			m_Chunks[x][0] = nullptr;
-		}
-		// Shift chunks to delete chunks place
-		for (int z = 0; z < ChunkDimensions - 1; z++) {
-			for (int x = 0; x < ChunkDimensions; x++) {
-				m_Chunks[x][z] = m_Chunks[x][z + 1];
 			}
 		}
+
+
+	}
+	//std::thread t(&bar::foo, bar());
+	//std::thread thread(&ThreadManager::GenerateChunks, &ThreadManager::Get(), ChunkChangeX, ChunkChangeZ, m_GlobalChunkOffset);
+	//thread.detach();
+	//std::async(std::launch::async, &ThreadManager::GenerateChunks, &ThreadManager::Get(), ChunkChangeX, ChunkChangeZ, m_GlobalChunkOffset);
+	ThreadManager::Get().GenerateChunksMultiThread(ChunkChangeX, ChunkChangeZ, m_GlobalChunkOffset);
+	auto t2 = std::chrono::high_resolution_clock::now();
+
+	std::cout << duration_cast<std::chrono::milliseconds>(t2 - t1) << std::endl;
+
+
+
+	if (ChunkChangeX > 0) {
+
+
+		//std::cout << "Generating Mesh.." << std::endl;
+	/*	std::cout << "3" << std::endl;
+		for (int z = 0; z < ChunkDimensions; z++) {
+			Vector2::Int chunk(ChunkDimensions - 1, z);
+			//ThreadManager::Get().GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
+		} */
+		ChunkChangeX--;
+	}
+
+	else if (ChunkChangeX < 0) {
+
+	/*	// Generate new chunks
+		m_ShiftingChunks = false;
+		for (int z = 0; z < ChunkDimensions; z++) {
+			Vector2::Int chunk(0, z);
+			ThreadManager::Get().GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
+		} */
+		ChunkChangeX++ ;
+	} 
+	
+
+	/*if (ChunkChangeZ > 0) {
+
 		// Generate new chunks
+		m_ShiftingChunks = false;
 		for (int x = 0; x < ChunkDimensions; x++) {
 			Vector2::Int chunk(x, ChunkDimensions - 1);
-			m_Chunks[chunk.x][chunk.y] = GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
-			m_Chunks[chunk.x][chunk.y]->GenerateMeshes();
-			m_Chunks[chunk.x][chunk.y]->Bind();
+			ThreadManager::Get().GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
 		}
 	}
 	else if (ChunkChangeZ < 0) {
-		SetNewActiveChunks(ChunkChangeX, ChunkChangeZ);
-		// Delete chunks
-		for (int x = 0; x < ChunkDimensions; x++) {
-			delete m_Chunks[x][ChunkDimensions - 1];
-			m_Chunks[x][ChunkDimensions - 1] = nullptr;
-		}
-		// Shift chunks to delete chunks place
-		for (int z = ChunkDimensions - 1; z > 0; z--) {
-			for (int x = 0; x < ChunkDimensions; x++) {
-				m_Chunks[x][z] = m_Chunks[x][z - 1];
-			}
-		}
+
 		// Generate new chunks
+		m_ShiftingChunks = false;
 		for (int x = 0; x < ChunkDimensions; x++) {
 			Vector2::Int chunk(x, 0);
-			m_Chunks[chunk.x][chunk.y] = GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
-			m_Chunks[chunk.x][chunk.y]->GenerateMeshes();
-			m_Chunks[chunk.x][chunk.y]->Bind();
+			ThreadManager::Get().GenerateChunk(chunk, chunk + m_GlobalChunkOffset);
 		}
 
-	}
+	} */
 
 	m_ActivLastChunk = playerChunk;
+}
+
+void ChunkManager::ShiftChunks(int ChunkChangeX, int ChunkChangeZ)
+{
+	if (ChunkChangeX > 0) {
+
+	}
+	else if (ChunkChangeX < 0) {
+
+	}
+	else if (ChunkChangeZ > 0) {
+
+	}
+	else if (ChunkChangeZ < 0) {
+
+	}
 }
 
 const int ChunkManager::GetDimensions()
@@ -172,7 +189,7 @@ const int ChunkManager::GetDimensions()
 }
 
 
-std::vector<std::vector<Chunk*>>& ChunkManager::GetChunksPointer()
+std::vector<std::vector<std::shared_ptr<Chunk>>>* ChunkManager::GetChunksPointer()
 {
-	return m_Chunks;
+	return &m_Chunks;
 }
