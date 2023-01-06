@@ -8,6 +8,12 @@ ThreadManager ThreadManager::s_Instance;
 
 ThreadManager::~ThreadManager()
 {
+
+}
+
+std::vector<std::shared_ptr<Chunk>>* ThreadManager::GetChunksPointer()
+{
+	return &m_Chunks;
 }
 
 void ThreadManager::UpdateOnMainThread()
@@ -32,6 +38,13 @@ void ThreadManager::GenerateChunksMultiThread(int ChunkChangeX, int ChunkChangeZ
 		else if (ChunkChangeX < 0) {
 			chunk = Vector2::Int(0, edge);
 			GenerateChunk(chunk, chunk + GlobalOffset);
+		} else if (ChunkChangeZ > 0) {
+			chunk = Vector2::Int(edge, Dimensions - 1);
+			GenerateChunk(chunk, chunk + GlobalOffset);
+		}
+		else if (ChunkChangeZ < 0) {
+			chunk = Vector2::Int(edge, 0);
+			GenerateChunk(chunk, chunk + GlobalOffset);
 		}
 	}
 }
@@ -46,6 +59,15 @@ void ThreadManager::GenerateChunk(Vector2::Int chunkPosition, Vector2::Int chunk
 	m_Chunks.push_back(newChunk);
 
 	m_ThreadsRunning++;
+}
+
+void ThreadManager::ResetChunks()
+{
+	nextChunk = nullptr;
+
+	for (int i = 0; i < m_Chunks.size(); i++) {
+		m_Chunks[i] = nullptr;
+	}
 }
 
 int count = 0;

@@ -6,7 +6,7 @@
 class Skybox {
 public:
 	Skybox();
-	~Skybox();
+	~Skybox() = default;
 	void Render(glm::mat4& mvp);
 public:
 	Model m_Model;

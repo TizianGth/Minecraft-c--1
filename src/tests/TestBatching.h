@@ -17,7 +17,6 @@ namespace test {
 		void OnImGuiRender() override;
 
 	private:
-
 		Shader m_Shader;
 		Texture m_Texture;
 		CubeMap m_CubeMap;
@@ -36,5 +35,6 @@ namespace test {
 		void MouseMovement();
 		void KeyboardMovement(double deltaTime);
 		void ChangeCursorLockState();
+		void ExitApplication();
 	};
 }

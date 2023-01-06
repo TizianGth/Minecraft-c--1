@@ -19,6 +19,7 @@ void main() {
 
 	v_Fog = exp(-pow((length(gl_Position.xyz)*0.01f), 5.5f));
 	v_Fog = clamp(v_Fog, 0, 1);
+	//v_Fog = 1; // disable fog
 };
 
 #shader fragment

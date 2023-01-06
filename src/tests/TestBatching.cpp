@@ -69,6 +69,7 @@ void test::TestBatching::OnUpdate(double deltaTime)
 	MouseMovement();
 	KeyboardMovement(deltaTime);
 	ChangeCursorLockState();
+	ExitApplication();
 
 	ChunkManager::Get().UpdateChunks(Vector2::Int((std::floor(cam.m_Position.x / 16) + 2), (std::floor(cam.m_Position.z / 16) + 2)));
 
@@ -140,11 +141,9 @@ void test::TestBatching::MouseMovement()
 {
 	if (!cursorLocked) return;
 	auto position = Input::GetMousePosition();
-
+	glfwSetCursorPos(applWindow, screenHalfX, screenHalfY);
 	screenHalfX = Application::GetWindowWidth() / 2;
 	screenHalfY = Application::GetWindowHeight() / 2;
-
-	glfwSetCursorPos(applWindow, screenHalfX, screenHalfY);
 
 	glm::vec2 delta = { position.first - screenHalfX,  position.second - screenHalfY };
 
@@ -179,8 +178,21 @@ void test::TestBatching::ChangeCursorLockState()
 	if (Input::IsKeyPressed(GLFW_KEY_L)) {
 		cursorLocked = !cursorLocked;
 	}
+}
 
+void test::TestBatching::ExitApplication()
+{
 	if (Input::IsKeyPressed(GLFW_KEY_ESCAPE)) {
-		glfwSetWindowShouldClose(Application::GetWindow(), GLFW_TRUE);
+		ChunkManager& cm = ChunkManager::Get();
+		ThreadManager& tm = ThreadManager::Get();
+		// Delete all shared ptrs otherwise gldelete error
+		for (int x = 0; x < cm.GetDimensions(); x++) {
+			for (int y = 0; y < cm.GetDimensions(); y++) {
+				cm.m_Chunks[x][y] = nullptr;
+			}
+		}
+		tm.ResetChunks();
+
+		glfwSetWindowShouldClose(applWindow, GLFW_TRUE);
 	}
 }

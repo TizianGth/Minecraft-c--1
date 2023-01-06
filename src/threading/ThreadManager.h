@@ -8,13 +8,17 @@
 class ThreadManager {
 public:
 	~ThreadManager();
+	std::vector<std::shared_ptr<Chunk>>* GetChunksPointer();
 	void UpdateOnMainThread();
 	void GenerateChunks(int ChunkChangeX, int ChunkChangeZ, Vector2::Int GlobalOffset);
 	void GenerateChunksMultiThread(int ChunkChangeX, int ChunkChangeZ, Vector2::Int GlobalOffset);
 	void GenerateChunk(Vector2::Int chunkPosition, Vector2::Int chunkGlobalPosition);
 
+	void ResetChunks();
+
 	unsigned int m_ThreadsRunning;
 	inline static ThreadManager& Get() { return s_Instance; };
+
 private:
 	static ThreadManager s_Instance;
 

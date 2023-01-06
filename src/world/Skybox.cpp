@@ -45,9 +45,6 @@ Skybox::Skybox() : m_Shader("res/shaders/basic.shader")
 	m_Model.addVA();
 }
 
-Skybox::~Skybox()
-{
-}
 
 void Skybox::Render(glm::mat4& mvp)
 {

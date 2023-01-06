@@ -26,6 +26,6 @@ private:
 	ChunkManager();
 	void SetNewActiveChunks(int ChunkChangeX, int ChunkChangeZ);
 	static ChunkManager s_Instance;
-	int ChunkRenderDistance = 10; // eg 1 active chunk (player in) + 5 in each direction = 11x11 Chunks 24 is max after that partially out of view
+	int ChunkRenderDistance = 4; // eg 1 active chunk (player in) + 5 in each direction = 11x11 Chunks 24 is max after that partially out of view
 	
 };

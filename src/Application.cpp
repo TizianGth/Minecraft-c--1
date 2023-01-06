@@ -41,6 +41,7 @@ void Draw() {
         elapsed_time_ms = std::chrono::duration<double, std::milli>(currentTime - previousTime).count();
 
         test1->OnUpdate(elapsed_time_ms);
+
         test1->OnRender(ScreenWidth, ScreenHeight);
 
         ImGui_ImplGlfwGL3_NewFrame();
@@ -107,6 +108,8 @@ int main(void)
         glfwPollEvents();
 
     }
+
+    shouldExit:
     ImGui_ImplGlfwGL3_Shutdown();
     ImGui::DestroyContext();
 
