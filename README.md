@@ -9,4 +9,4 @@ What I have done so far:
 - Some minor things like fog
 
 Currently working on:
-- Physics, mostly collisions right now
+- Physics, mostly collisions right now (hard!)
