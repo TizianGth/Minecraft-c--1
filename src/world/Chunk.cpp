@@ -4,6 +4,7 @@
 #include "ChunkManager.h"
 #include <algorithm>
 #include <ppl.h>
+#include "BoxCollider.h"
 
 //TODO: CHUNK AND WORLD POSITION CONVERSION
 Chunk::Chunk()
@@ -137,11 +138,12 @@ void Chunk::FillUpTest()
 	int noise = 0;
 	int x;
 	int z;
+	int dimensions = ChunkManager::Get().GetDimensions();
 
 	for (int x = 0; x < 16; x++) {
 		for (int z = 0; z < 16; z++) {
 			noise = (int)(perlin.octave2D_01((x + (m_ChunkWorldPosition.x * CHUNK_SIZE)) * 0.0625, (z + (m_ChunkWorldPosition.y * CHUNK_SIZE)) * 0.0625, 3) * 7) + 5;
-			//std::cout << noise << std::endl;
+			//m_Colliders[x][0] = BoxCollider(glm::vec3(x + (m_ChunkWorldPosition.x - dimensions / 2) * CHUNK_SIZE + 0.5f, noise - 0.5f, 0), glm::vec3(1, 1, 1));
 			for (int y = 0; y < noise; y++) {
 
 				position = glm::vec3(x, y, z);
@@ -153,6 +155,8 @@ void Chunk::FillUpTest()
 			}
 		}
 	}
+
+
 
 	noise = 0;
 
@@ -205,6 +209,11 @@ bool Chunk::GenerateChunk(Vector2::Int chunkPosition, Vector2::Int chunkWorldPos
 	FillUpTest();
 	GenerateMeshes();
 	return true;
+}
+
+std::array<unsigned char, CHUNK_SIZE* CHUNK_SIZE* CHUNK_HEIGHT>& Chunk::GetBlocks()
+{
+	return m_Blocks;
 }
 
 
@@ -350,9 +359,10 @@ const int Chunk::GetBlock(glm::vec3 position)
 {
 	if (position.y >= CHUNK_HEIGHT || position.y < 0) return 0;
 
+	if ((position.z >= CHUNK_HEIGHT && position.x >= CHUNK_HEIGHT) || (position.z <= -1 && position.x <= -1)) return 0;
 	unsigned int index = 0;
 	int edge = -1;
-	int edgeZ = 0;
+
 	if (position.x <= -1) {
 		index = position.z;
 		edge = 3;

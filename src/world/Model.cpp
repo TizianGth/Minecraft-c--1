@@ -49,11 +49,14 @@ void Model::Bind()
 	addVB();
 	addIB();
 	addVA();
-	delete m_Mesh;
-	m_Mesh = nullptr;
+
+	if (!m_Active) {
+		delete m_Mesh;
+		m_Mesh = nullptr;
+	}
+
 	m_Bound = true;
 
-	//if (!m_Active) { delete m_Mesh; m_Mesh = nullptr; }
 }
 
 

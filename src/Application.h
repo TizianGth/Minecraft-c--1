@@ -6,4 +6,5 @@ public:
 	static GLFWwindow* GetWindow();
 	static int GetWindowWidth();
 	static int GetWindowHeight();
+	static void Exit();
 };

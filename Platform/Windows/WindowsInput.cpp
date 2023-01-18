@@ -1,6 +1,6 @@
 #include "WindowsInput.h"
 #include "Application.h"
-
+#include <iostream>
 #include <GLFW/glfw3.h>
 
 Input* Input::s_Instance = new WindowsInput();
@@ -21,19 +21,20 @@ bool WindowsInput::IsMouseButtonPressedImpl(int button)
 
 float WindowsInput::GetMouseXImpl()
 {
-	return GetMousePositionImpl().first;
+	return GetMousePositionImpl().x;
 }
 
 float WindowsInput::GetMouseYImpl()
 {
-	return GetMousePositionImpl().second;
+	return GetMousePositionImpl().y;
 }
 
-std::pair<double, double> WindowsInput::GetMousePositionImpl()
+Vector2::Double WindowsInput::GetMousePositionImpl()
 {
 	auto window = Application::GetWindow();
 	double xPos, yPos;
 	glfwGetCursorPos(window, &xPos, &yPos);
-	return { xPos, yPos};
+	
+	return Vector2::Double(xPos, yPos);
 }
 

@@ -67,6 +67,8 @@ int ChunkChangeX = 0;
 int ChunkChangeZ = 0;
 void ChunkManager::UpdateChunks(Vector2::Int playerChunk)
 {
+	m_Finished = true;
+
 	ChunkChangeX += playerChunk.x - m_ActivLastChunk.x;
 	ChunkChangeZ += playerChunk.y - m_ActivLastChunk.y;
 	int ChunkDimensions = GetDimensions();
@@ -148,22 +150,6 @@ void ChunkManager::UpdateChunks(Vector2::Int playerChunk)
 
 
 	m_ActivLastChunk = playerChunk;
-}
-
-void ChunkManager::ShiftChunks(int ChunkChangeX, int ChunkChangeZ)
-{
-	if (ChunkChangeX > 0) {
-
-	}
-	else if (ChunkChangeX < 0) {
-
-	}
-	else if (ChunkChangeZ > 0) {
-
-	}
-	else if (ChunkChangeZ < 0) {
-
-	}
 }
 
 const int ChunkManager::GetDimensions()

@@ -21,10 +21,12 @@ namespace test {
 		Texture m_Texture;
 		CubeMap m_CubeMap;
 		CubeMap m_Overlay;
-		Renderer m_Renderer;
 		Skybox m_Skybox;
 
+		Renderer& m_Renderer = Renderer::Get();
+
 		glm::mat4 m_Proj;
+		glm::mat4 m_ProjCam;
 		glm::mat4 m_Model;
 		glm::mat4 m_Mvp;
 
@@ -36,5 +38,6 @@ namespace test {
 		void KeyboardMovement(double deltaTime);
 		void ChangeCursorLockState();
 		void ExitApplication();
+
 	};
 }

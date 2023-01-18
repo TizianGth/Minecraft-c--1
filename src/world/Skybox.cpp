@@ -48,8 +48,8 @@ Skybox::Skybox() : m_Shader("res/shaders/basic.shader")
 
 void Skybox::Render(glm::mat4& mvp)
 {
-	m_SkyBox.Bind(3);
+	m_SkyBox.Bind(2);
 	m_Shader.Bind();
-	m_Shader.SetUniform1i("u_Texture", 3);
+	m_Shader.SetUniform1i("u_Texture", 2);
 	m_Shader.SetUniformMat4f("u_MVP", mvp);
 }

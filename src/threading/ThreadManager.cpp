@@ -70,14 +70,11 @@ void ThreadManager::ResetChunks()
 	}
 }
 
-int count = 0;
-
 void ThreadManager::GenerateChunksOnMainThread()
 {
 	if (m_Chunks.size() == 0) {
 		return;
 	}
-	if (count < 10) { count++; return; }
 	nextChunk = ReturnNextChunkToGenerate();
 
 	if (nextChunk != nullptr) {
@@ -88,7 +85,6 @@ void ThreadManager::GenerateChunksOnMainThread()
 		m_Threads.pop_back();
 
 		m_ThreadsRunning--;
-		count = 0;
 	}
 }
 

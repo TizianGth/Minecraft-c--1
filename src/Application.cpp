@@ -20,6 +20,7 @@
 
 #include "tests/TestClearColor.h"
 #include "tests/TestBatching.h"
+#include "ThreadManager.h"
 #include "Application.h"
 
 #include <chrono>
@@ -109,7 +110,8 @@ int main(void)
 
     }
 
-    shouldExit:
+    Application::Exit();
+
     ImGui_ImplGlfwGL3_Shutdown();
     ImGui::DestroyContext();
 
@@ -133,4 +135,17 @@ int Application::GetWindowWidth()
 int Application::GetWindowHeight()
 {
     return ScreenHeight;
+}
+
+ void Application::Exit()
+{
+    ChunkManager& cm = ChunkManager::Get();
+    ThreadManager& tm = ThreadManager::Get();
+    // Delete all shared ptrs otherwise gldelete error
+    for (int x = 0; x < cm.GetDimensions(); x++) {
+        for (int y = 0; y < cm.GetDimensions(); y++) {
+            cm.m_Chunks[x][y] = nullptr;
+        }
+    }
+    tm.ResetChunks();
 }

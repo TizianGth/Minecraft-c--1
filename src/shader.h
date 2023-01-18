@@ -27,8 +27,9 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
-	void SetUniform1i(const std::string& game, int value);
-	void SetUniform1f(const std::string& game, float value);
-	void SetUniform4f(const std::string& game, glm::vec4 value);
+	void SetUniform1i(const std::string& name, int value);
+	void SetUniform1f(const std::string& name, float value);
+	void SetUniform3f(const std::string& name, glm::vec3 value);
+	void SetUniform4f(const std::string& name, glm::vec4 value);
 	void SetUniformMat4f(const std::string& name, glm::mat4& matrix);
 };
