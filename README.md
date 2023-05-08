@@ -1,12 +1,10 @@
 # Minecraft c++1
  
-My first project in c++ to help me lern c++ and computer graphics.
+My first project in c++ to help me OpenGL
 
 What I have done so far:
 - Inputs
--Simple camera "Spectator mode"
+- Simple camera "Spectator mode"
 - Asynchronous infinite chunk generation with perlin noise
-- Some minor things like fog
+- Little things like a custom grass shader or fog
 
-Currently working on:
-- Physics, mostly collisions right now (hard!)
