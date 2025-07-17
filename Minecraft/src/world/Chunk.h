@@ -16,6 +16,8 @@
 
 #include "Line.h"
 
+#include "AABB.h"
+
 const int CHUNK_SIZE = 16;
 const int CHUNK_HEIGHT = 256;
 
@@ -53,6 +55,8 @@ public:
 
 	int positionX, positionY;
 
+	AABB m_FrustumBounds;
+
 	Chunk(int x, int y);
 	~Chunk();
 
@@ -70,6 +74,8 @@ public:
 	const int GetIndex(int x, int y, int z);
 	const Settings::BlockTypes Getblock(int x, int y, int z);
 
+
+
 private:
 	unsigned int indicesOffset = 0;
 
@@ -83,6 +89,9 @@ private:
 	const siv::PerlinNoise::seed_type m_Seed = 123456u;
 
 	const siv::PerlinNoise m_Perlin{ m_Seed };
+
+
+	int m_HighestBlock = 0;
 
 
 };

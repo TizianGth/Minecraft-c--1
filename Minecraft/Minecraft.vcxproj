@@ -20,6 +20,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\engine\Camera.cpp" />
     <ClCompile Include="src\physics\BoxCollider.cpp" />
     <ClCompile Include="src\world\GeneratorSettings.cpp" />
     <ClCompile Include="src\world\ChunkGenerator.cpp" />

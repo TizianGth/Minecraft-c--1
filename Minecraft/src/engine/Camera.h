@@ -4,6 +4,13 @@
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
+#include "Input.h"
+#include <algorithm>
+#include "DeltaTime.h"
+#include "AABB.h"
 
 class Camera : public GameObject {
 public:
@@ -24,32 +31,35 @@ public:
 	unsigned int m_Fov = 90.0f;
 	float m_AspectRatio = 0.0f;
 
+	bool m_MouseLocked = true;
+
 	Camera() {};
 
-	inline Camera(int width, int height)
-	{ 
-		SetFov(m_Fov, width, height); 
-
-		m_Collider.m_Position = m_Position - glm::vec3(0.5f, m_CameraHeight, 0.5f);
-		m_Collider.m_Size = glm::vec3(1.0f, m_ColliderHeight, 1.0f);
-
-		m_IsCollider = true;
-	};
-
-	inline void SetFov(unsigned int fov, int windowWith, int windowHeight) {
-		m_Fov = fov;
-		m_AspectRatio = (float)windowWith / (float)windowHeight;
-		m_Proj = glm::perspective(glm::radians((float)fov), m_AspectRatio, m_NearPlane, m_FarPlane);
-
-	};
+	Camera(int width, int height, GLFWwindow* window);
+	void SetFov(unsigned int fov);
 
 	// moved mat4 here so not every gameobj has a mat4
-	inline void UpdateMat4() override {
-		m_Mat4 = glm::lookAt(m_Position, m_Position + m_Direction, m_Up);
-	}
+	void UpdateMat4() override;
 
-	inline void MoveByCollider(glm::vec3 velocity, BoxCollider& collider) {
+	void MoveByCollider(glm::vec3 velocity, BoxCollider& collider);
 
-	}
+	void OnMouseMove();
+	void OnKeyboardMove();
+	void OnZoom();
+	void ZoomIn();
+	void ZoomOut();
+	void OnMouseLock();
 
+	void SetWindow(GLFWwindow* window);
+
+	// TODO: change to box collider
+	bool IsInFrustum(const AABB& aabb);
+	void SetPlanes(const glm::mat4& m);
+private:
+	int m_WindowWidth = 0, m_WindowHeight = 0;
+	double m_RotationX = 0, m_RotationY = 0;
+	double m_LastX = 0, m_LastY = 0;
+	GLFWwindow* m_Window = nullptr;
+
+	glm::vec4 m_Planes[6];
 };

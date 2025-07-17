@@ -6,6 +6,7 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_glfw_gl3.h"
 
+
 MainWindow::MainWindow(int width, int height)
 {
     m_WindowWidth = width;
@@ -63,7 +64,8 @@ Shader* shader;
 void MainWindow::Init()
 {
     // setup camera
-    m_Camera.SetFov(90, m_WindowWidth, m_WindowHeight);
+	m_Camera = Camera(m_WindowWidth, m_WindowHeight, m_Window);
+    m_Camera.SetFov(90);
     m_Camera.MoveTo(glm::vec3(0, 50, 0));
 
     m_ChunkGen.m_ShouldUpdate = true;
@@ -111,6 +113,11 @@ void MainWindow::Init()
         ImGui::SliderFloat("Fog 1", &m_Fog1, 0.0f, 0.01f);
         ImGui::SliderFloat("Fog 2", &m_Fog2, 0.0f, 30.0f);
 
+        ImGui::Text("\nWASD: Movement");
+        ImGui::Text("Space: Fly up, LShif: Fly down, LCtrl: Go faster");
+        ImGui::Text("R: Reset location, L: Lock courser, F: Zoom");
+        ImGui::Text("M: Wireframe mode");
+
         ImGui::Render();
         ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -148,6 +155,7 @@ void MainWindow::OnRender()
     auto r = Renderer::Get();
     r.Clear();
 
+    Line line;;
 
     auto m = m_ChunkGen.m_AllChunks;
     for (const auto& it : m) {
@@ -155,12 +163,17 @@ void MainWindow::OnRender()
 
             if (chunk != nullptr && chunk->m_Generated && (chunk->m_Model != nullptr) && !chunk->m_Hide) {
 
-
                 glm::mat4 mvp = projCam * chunk->m_ModelMat4;
+
                 {
+                    m_Camera.SetPlanes(mvp);
+                    if(!m_Camera.IsInFrustum(chunk->m_FrustumBounds)) {
+                        continue;
+					}
                     shader->Bind();
                     shader->SetUniformMat4f("u_MVP", mvp);
-                    r.Draw(chunk->m_Model->m_Vao, chunk->m_Model->m_IndicesCount);
+                    if(chunk->m_Model)
+                        r.Draw(chunk->m_Model->m_Vao, chunk->m_Model->m_IndicesCount);
                 }
             }
         
@@ -176,30 +189,7 @@ double rotationX, rotationY;
 
 void MainWindow::OnMouseUpdate()
 {
-    if (!m_MouseLocked) return;
-
-    auto xy = Input::GetMousePosition(m_Window);
-    std::pair<double, double> delta = { xy.first - lastX, xy.second - lastY };
-
-    rotationX += delta.first * m_Camera.m_RotationSpeed * Time::deltaTime;
-    rotationY += delta.second * m_Camera.m_RotationSpeed * Time::deltaTime;
-    rotationY = std::clamp(rotationY, -89.0, 89.0);
-
-    m_Camera.Rotate(glm::vec3(rotationX, rotationY, 0));
-
-    int centerX = m_WindowWidth >> 1, centerY = m_WindowHeight >> 1;
-    int maxRadius = glm::min(m_WindowWidth, m_WindowHeight) / 3;
-    glm::vec2 d = glm::vec2(lastX, lastY) - glm::vec2(centerX, centerY);
-    float len = glm::length(d);
-    if (len > maxRadius) {
-        glfwSetCursorPos(m_Window, (int)centerX, (int)centerY);
-        lastX = centerX, lastY = centerY;
-    }
-    else {
-        lastX = xy.first;
-        lastY = xy.second;
-    }
-
+	m_Camera.OnMouseMove();
 }
 
 
@@ -207,82 +197,21 @@ void MainWindow::OnMouseUpdate()
 
 void MainWindow::OnKeyboardUpdate()
 {
-    
-    if (Input::GetMouseDown(m_Window, GLFW_MOUSE_BUTTON_LEFT)) {
-        std::cout << "Clicked" << std::endl;
-        glm::ivec2 chunkPos(0, 0);
-
-        Chunk* chunk = m_ChunkGen.m_AllChunks[chunkPos];
-
-        chunk->Changeblock(0, 29, 0, 1);
-        chunk->Changeblock(0, 30, 0, 1);
-        chunk->Changeblock(0, 31, 0, 1);
-        chunk->Changeblock(0, 32, 0, 1);
-
-
-        m_ChunkGen.m_GenChunks[chunkPos] = chunk;
-        m_ChunkGen.m_StartUp = true;
-    }
-    
-    
-
-    if (Input::GetKeyDown(m_Window, GLFW_KEY_L)) {
-        m_MouseLocked = !m_MouseLocked;
-
-        if (!m_MouseLocked) {
-            glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    // Wireframe mode
+    if (Input::GetKeyDown(m_Window, GLFW_KEY_M)) {
+        if (m_Wireframe) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
         else {
-            glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
+        m_Wireframe = !m_Wireframe;
     }
+    
 
-    if (Input::GetKeyPressed(m_Window, GLFW_KEY_F)) {
-        m_Camera.SetFov(20, m_WindowWidth, m_WindowHeight);
-    }
-    else {
-        m_Camera.SetFov(90, m_WindowWidth, m_WindowHeight);
-    }
-
-
-    glm::vec3 velocity(0.0f);
-    // Basic Movement
-    if (Input::GetKeyPressed(m_Window, GLFW_KEY_W)) {
-        velocity += m_Camera.m_Direction * m_Camera.m_MovementSpeed;
-    }
-    if (Input::GetKeyPressed(m_Window, GLFW_KEY_S)) {
-        velocity += m_Camera.m_Direction * -m_Camera.m_MovementSpeed;
-    }
-    if (Input::GetKeyPressed(m_Window, GLFW_KEY_A)) {
-        velocity += m_Camera.m_Right * -m_Camera.m_MovementSpeed;
-    }
-    if (Input::GetKeyPressed(m_Window, GLFW_KEY_D)) {
-        velocity += m_Camera.m_Right * m_Camera.m_MovementSpeed;
-    }
-
-    // Flying: Up/Down
-    if (Input::GetKeyPressed(m_Window, GLFW_KEY_SPACE)) {
-        velocity.y += m_Camera.m_MovementSpeed;
-    }
-    if (Input::GetKeyPressed(m_Window, GLFW_KEY_LEFT_SHIFT)) {
-        velocity.y -= m_Camera.m_MovementSpeed;
-    }
-
-    // Running
-    if (Input::GetKeyPressed(m_Window, GLFW_KEY_LEFT_CONTROL)) {
-        velocity *= m_Camera.m_MovementSpeedMaxMulti;
-    }
-
-    //m_Camera.MoveBy(velocity * Time::deltaTime);
-
-    //
-
-    //isColiding((velocity * glm::vec3(1, 0, 1)) * Time::deltaTime);
-    //isColiding(velocity * Time::deltaTime * glm::vec3(1, 0, 0));
-    //isColiding(velocity * Time::deltaTime * glm::vec3(0, 0, 1));
-
-	std::cout << "Velocity: " << velocity.x << ", " << velocity.y << ", " << velocity.z << std::endl;
-    m_Camera.MoveBy(velocity * Time::deltaTime);
+    m_Camera.OnMouseLock();
+	m_Camera.OnZoom();
+	m_Camera.OnKeyboardMove();
 
 
 
@@ -291,6 +220,7 @@ void MainWindow::OnKeyboardUpdate()
 //AABB b(glm::vec3(0, 28, 0), glm::vec3(1, 1, 1));
 bool MainWindow::isColiding(const glm::vec3& velocity)
 {
+    /*
     glm::vec3 posBefore = m_Camera.m_Position;
     m_Camera.MoveBy(velocity);
 
@@ -315,6 +245,8 @@ bool MainWindow::isColiding(const glm::vec3& velocity)
     }
     m_Camera.MoveTo(glm::vec3(c.m_Position.x + 0.5f, c.m_Position.y + 1.5, c.m_Position.z + 0.5f));
     return true;
+    */
+	return false;
 }
 
 int MainWindow::Sign(int i)

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 #include "Model.h"
 #include "Shapes.h"
 #include "Shader.h"
@@ -12,11 +13,11 @@
 #include "TextureAtlas.h"
 #include "ChunkGenerator.h"
 
-
+#include "Line.h"
 #include "AABB.h"
 
-
-const int chunkAmount = 22;
+// chunkAmount = Worlds half-sidelength in chunks => total chunks = (chunkAmount * 2) ^ 2
+const int chunkAmount = 20;
 
 class MainWindow {
 public:
@@ -48,7 +49,5 @@ private:
     float m_Fog1= 0.004f / ((1.0f/23.5f) * chunkAmount);
     float m_Fog2= 15.0f;
 
-    bool m_MouseLocked = true;
-
-    glm::vec2 m_Frustom[3];
+	bool m_Wireframe = false;
 };

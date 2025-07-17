@@ -46,18 +46,30 @@ void Chunk::Fill()
 	for (int x = 0; x < CHUNK_SIZE; x++) {
 		for (int z = 0; z < CHUNK_SIZE; z++) {
 			height = GetPerlinHeight(x, z);
-			for (int y = 0; y <= std::max(height, (int)Biomes::Plains::WATER); y++) {
+			height = std::max(height, (int)Biomes::Plains::WATER);
+			m_HighestBlock = std::max(m_HighestBlock, height);
+
+			for (int y = height; y >= 0; y--) {
 				int index = GetIndex(x, y, z);
 				m_Blocks[index] = Settings::Settings::BlockTypes::GRASS;
+
 				if (y <= Biomes::Plains::WATER) {
 					m_Blocks[index] = Settings::Settings::BlockTypes::WATER;
 				}
 				else if((y == Biomes::Plains::SAND)){
 					m_Blocks[index] = Settings::Settings::BlockTypes::SAND;
 				}
+
+				if (y < height) {
+					if (m_Blocks[GetIndex(x, y+1, z)] == Settings::Settings::BlockTypes::GRASS) {
+						m_Blocks[index] = Settings::Settings::BlockTypes::DIRT;
+					}
+				}
 			}
 		}
 	}
+
+	m_FrustumBounds = AABB(glm::vec3(-1,-1,-1), glm::vec3(CHUNK_SIZE+1, m_HighestBlock+1, CHUNK_SIZE+1));
 }
 
 void Chunk::GenerateMesh()
