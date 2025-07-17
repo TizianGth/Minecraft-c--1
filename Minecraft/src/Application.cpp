@@ -5,6 +5,6 @@
 #include "MainWindow.h"
 
 int main() {
-	MainWindow w(1900, 1000);
+	MainWindow w(1700, 900);
 }
 

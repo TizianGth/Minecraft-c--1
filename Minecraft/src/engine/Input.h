@@ -11,5 +11,8 @@ public:
 	static bool GetKeyUp(GLFWwindow* window, int keycode);
 	static std::pair<double, double> GetMousePosition(GLFWwindow* window);
 	static bool GetMouseDown(GLFWwindow* window, int keycode);
+
+private:
+	static bool m_KeyDown[65536];
 };
 

@@ -115,7 +115,7 @@ void MainWindow::Init()
 
         ImGui::Text("\nWASD: Movement");
         ImGui::Text("Space: Fly up, LShif: Fly down, LCtrl: Go faster");
-        ImGui::Text("R: Reset location, L: Lock courser, F: Zoom");
+        ImGui::Text("L: Lock courser, F: Zoom");
         ImGui::Text("M: Wireframe mode");
 
         ImGui::Render();

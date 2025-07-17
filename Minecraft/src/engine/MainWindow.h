@@ -17,7 +17,7 @@
 #include "AABB.h"
 
 // chunkAmount = Worlds half-sidelength in chunks => total chunks = (chunkAmount * 2) ^ 2
-const int chunkAmount = 20;
+const int chunkAmount = 25;
 
 class MainWindow {
 public:
